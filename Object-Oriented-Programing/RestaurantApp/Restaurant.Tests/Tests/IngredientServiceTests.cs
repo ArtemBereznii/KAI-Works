@@ -105,7 +105,8 @@ namespace Restaurant.Tests.Tests
 
             // Assert
             var updated = fakeRepo.GetById(1);
-            Assert.AreEqual("NewName", updated.Name);
+            Assert.IsNotNull(updated);
+            Assert.AreEqual("NewName", updated!.Name);
             Assert.AreEqual("NewUnit", updated.Unit);
         }
 

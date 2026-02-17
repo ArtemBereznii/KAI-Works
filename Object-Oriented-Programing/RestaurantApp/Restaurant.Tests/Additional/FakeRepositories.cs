@@ -21,10 +21,10 @@ namespace Restaurant.Tests.Additional
 
         public IEnumerable<Ingredient> GetAll() => Data;
 
-        public Ingredient GetById(int id) => Data.FirstOrDefault(i => i.Id == id);
+        public Ingredient? GetById(int id) => Data.FirstOrDefault(i => i.Id == id);
 
         public IEnumerable<Ingredient> Search(string keyword) =>
-            Data.Where(i => i.Name.Contains(keyword));
+            Data.Where(i => i.Name != null && i.Name.Contains(keyword));
 
         public void Update(Ingredient entity)
         {
@@ -52,7 +52,7 @@ namespace Restaurant.Tests.Additional
 
         public IEnumerable<Dish> GetAll() => Data;
 
-        public Dish GetById(int id) => Data.FirstOrDefault(d => d.Id == id);
+        public Dish? GetById(int id) => Data.FirstOrDefault(d => d.Id == id);
 
         public void Update(Dish entity)
         {
@@ -80,7 +80,7 @@ namespace Restaurant.Tests.Additional
 
         public IEnumerable<Order> GetAll() => Data;
 
-        public Order GetById(int id) => Data.FirstOrDefault(o => o.Id == id);
+        public Order? GetById(int id) => Data.FirstOrDefault(o => o.Id == id);
 
         public IEnumerable<Order> Search(string keyword) => new List<Order>(); // Спрощено для тестів
 

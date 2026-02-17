@@ -5,7 +5,6 @@ using Restaurant.BLL.Services;
 using Restaurant.DAL.Repositories;
 using Restaurant.PL;
 
-// Цей простір імен має відповідати назві вашого PL проекту
 namespace Restaurant.PL
 {
     class Program
