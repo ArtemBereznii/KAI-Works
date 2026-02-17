@@ -1,7 +1,7 @@
 # 🧪 Laboratory Work 1: Messenger System Design
 ## Variant 10: Moderation & Reporting
 
-**Student:** [Your Name]
+**Student:** Artem Bereznii
 **Focus:** Business logic, governance, and audit trails.
 
 ---
