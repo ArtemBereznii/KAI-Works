@@ -1,7 +1,7 @@
 # 🧪 Laboratory Work 1: Messenger System Design
 ## Variant 10: Moderation & Reporting
 
-**Student:** [Your Name]
+**Student:** Artem Bereznii
 **Focus:** Business logic, governance, and audit trails.
 
 ---
@@ -93,7 +93,7 @@ stateDiagram-v2
 ## 📚 Part 4 — ADR (Architecture Decision Record)
 
 ```markdown
-# ADR-001: Use Message Queue for Delivery
+# ADR-001: Use Soft Delete for Moderated Content
 
 ## Status
 Accepted
