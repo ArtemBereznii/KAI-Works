@@ -19,7 +19,7 @@ public class Main {
             }
         }
 
-        // Виведення матриці А до обробки
+        // Виведення матриці А
         System.out.println("Матриця А:");
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
