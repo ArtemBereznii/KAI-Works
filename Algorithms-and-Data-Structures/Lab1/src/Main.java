@@ -6,7 +6,7 @@ import models.MyStack;
 public class Main {
     public static void main(String[] args) {
 
-        System.out.println("=== Level 1: Creating and populating Stack ===");
+        System.out.println("Level 1: Creating and populating Stack");
         MyStack stack = new MyStack(5);
         stack.push(1);
         stack.push(2);
@@ -15,15 +15,15 @@ public class Main {
         stack.push(8);
         stack.printStack();
 
-        System.out.println("\n=== Level 2: Initializing Doubly Linked List ===");
+        System.out.println("\nLevel 2: Initializing Doubly Linked List");
         MyDoublyLinkedList list = new MyDoublyLinkedList();
 
-        System.out.println("\n=== Level 3: Transferring Data via DataConverter ===");
+        System.out.println("\nLevel 3: Transferring Data via DataConverter");
         // Instantiate the converter and pass the structures to it
         DataConverter converter = new DataConverter();
         converter.transferStackToList(stack, list);
 
-        System.out.println("\n=== Final Result ===");
+        System.out.println("\nFinal Result");
         list.printList();
 
         System.out.println("Is stack empty now? " + stack.isEmpty());
