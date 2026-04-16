@@ -6,13 +6,14 @@ namespace HardwareSim.PL
     {
         static void Main(string[] args)
         {
-            var mockRepo = new MockHardwareRepo();
-            var demo = new DemoRunner(mockRepo);
+            // Initialize the data access layer
+            var mockRepo = new JsonHardwareRepo();
 
-            // Run the simulation
-            demo.RunDemo();
+            // Pass the data to the simulation engine
+            var engine = new SimulationEngine(mockRepo);
 
-            ConsoleManager.Pause();
+            // Start the interactive console loop
+            engine.Start();
         }
     }
 }

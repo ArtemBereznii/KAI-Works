@@ -6,6 +6,9 @@ namespace HardwareSim.DAL.Interfaces
     public interface IRepository
     {
         IEnumerable<Device> GetAllDevices();
-        Device GetDevice(string id);
+        Device? GetDevice(string id);
+        void AddDevice(string id, Device device);
+
+        void SaveChanges();
     }
 }

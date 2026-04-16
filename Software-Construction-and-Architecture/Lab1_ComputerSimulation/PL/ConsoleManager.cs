@@ -5,42 +5,49 @@ namespace HardwareSim.PL
 {
     public static class ConsoleManager
     {
-        public static void PrintHeader(string title)
+        public static void PrintMenu(string[] options, string title = "MENU")
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"\n=== {title} ===");
-            Console.ResetColor();
+            Console.WriteLine();
+            Console.WriteLine($"--- {title} ---");
+            for (int i = 0; i < options.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {options[i]}");
+            }
+            Console.Write("Select an option: ");
         }
 
         public static void PrintInfo(string message)
         {
-            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"[INFO] {message}");
-            Console.ResetColor();
         }
 
-        // Event handler method that matches the signature required by BLL events 
-        public static void HandleDeviceNotification(object sender, HardwareEventArgs e)
+        public static void HandleDeviceNotification(object? sender, HardwareEventArgs? e)
         {
-            if (e.Message.Contains("Failed") || e.Message.Contains("shutting down") || e.Message.Contains("died"))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"[ALERT] {e.Message}");
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"[SYSTEM] {e.Message}");
-            }
-            Console.ResetColor();
+            if (e == null) return;
+
+            // Simple prefix to distinguish device events from regular menu text
+            Console.WriteLine($"[DEVICE NOTIFICATION]: {e.Message}");
         }
 
-        public static void Pause()
+        public static string ReadInput(string prompt)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ResetColor();
-            Console.ReadKey();
+            Console.Write($"{prompt}: ");
+            return Console.ReadLine() ?? string.Empty;
+        }
+
+        public static bool ReadBool(string prompt)
+        {
+            while (true)
+            {
+                Console.Write($"{prompt} (y/n): ");
+                string input = Console.ReadLine()?.Trim().ToLower() ?? "";
+
+                if (input == "y" || input == "yes") return true;
+                if (input == "n" || input == "no") return false;
+
+                // If they type anything else, scold them and loop again!
+                PrintInfo("Invalid input. Please explicitly type 'y' or 'n'.");
+            }
         }
     }
 }

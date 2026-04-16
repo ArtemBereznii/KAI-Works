@@ -1,26 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HardwareSim.BLL.Abstractions;
+﻿using HardwareSim.BLL.Abstractions;
 using HardwareSim.BLL.Entities.Components;
+using HardwareSim.BLL.Entities.Devices;
 using HardwareSim.BLL.Events;
 using HardwareSim.BLL.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace HardwareSim.BLL.Entities.Base
 {
+    [JsonDerivedType(typeof(Computer), typeDiscriminator: "Computer")]
+    [JsonDerivedType(typeof(Laptop), typeDiscriminator: "Laptop")]
+    [JsonDerivedType(typeof(Smartphone), typeDiscriminator: "Smartphone")]
     public abstract class Device : IDevice
     {
         public event EventHandler<HardwareEventArgs>? OnStateNotification;
 
-        public bool IsConnectedToGrid { get; private set; } = true;
+        public bool IsConnectedToGrid { get; set; } = true;
         public bool HasNetworkConnection { get; set; } = true;
 
-        public Memory DeviceMemory { get; } = new();
-        public Processor? DeviceProcessor { get; protected set; }
-        public IPowerSource DeviceBattery { get; protected set; }
-        public IPowerSource DeviceUPS { get; protected set; }
+        public Memory DeviceMemory { get; set; } = new();
+        public Processor? DeviceProcessor { get; set; }
+        public Battery? DeviceBattery { get; set; }
+        public Battery? DeviceUPS { get; set; }
 
-        protected List<IPeripheral> ConnectedPeripherals { get; } = new();
+        public List<HardwarePeripheral> ConnectedPeripherals { get; set; } = new();
 
         // Injecting services via Composition
         private readonly PowerService _powerService = new();
@@ -37,31 +42,61 @@ namespace HardwareSim.BLL.Entities.Base
             Notify(isConnected ? "Device plugged into grid." : "Grid power lost.");
         }
 
-        public void ConnectPeripheral(IPeripheral peripheral)
+        public void SetNetworkConnection(bool isConnected)
+        {
+            HasNetworkConnection = isConnected;
+            Notify(isConnected ? "Device connected to the network." : "Network connection disabled.");
+        }
+
+        public void ConnectPeripheral(HardwarePeripheral peripheral)
         {
             ConnectedPeripherals.Add(peripheral);
             Notify($"{peripheral.Name} connected.");
         }
 
-        public void ExecuteOperation(string softwareName, double durationHours, bool isIntensive)
+        public void DisconnectPeripheral(string peripheralName)
         {
+            var peripheral = ConnectedPeripherals.FirstOrDefault(p => p.Name.ToLower() == peripheralName.ToLower());
+
+            if (peripheral != null)
+            {
+                ConnectedPeripherals.Remove(peripheral);
+                Notify($"{peripheral.Name} was safely disconnected.");
+            }
+            else
+            {
+                Notify($"Peripheral '{peripheralName}' is not currently connected.");
+            }
+        }
+
+        public void ExecuteOperation(string softwareName, double durationHours)
+        {
+            // 1. Get the actual software object from Memory
+            var software = DeviceMemory.GetSoftware(softwareName);
+            if (software == null)
+            {
+                Notify($"Operation Failed: Software '{softwareName}' is not installed.");
+                return;
+            }
+
             bool hasAudio = ConnectedPeripherals.Any(p => p.IsAudioDevice);
 
-            // Use SoftwareManager to check prerequisites
-            if (!_softwareManager.ValidatePrerequisites(softwareName, DeviceMemory, HasNetworkConnection, hasAudio, out string error))
+            // 2. Validate prerequisites using the object's real properties
+            if (!_softwareManager.ValidatePrerequisites(software, HasNetworkConnection, hasAudio, out string error))
             {
                 Notify($"Operation Failed: {error}");
                 return;
             }
 
-            // Use PowerService to calculate drains
-            if (!_powerService.TryConsumePower(IsConnectedToGrid, DeviceBattery, DeviceUPS, durationHours, isIntensive, out string powerMsg))
+            // 3. Consume power using the object's built-in IsIntensive property!
+            if (_powerService.TryConsumePower(IsConnectedToGrid, DeviceBattery, DeviceUPS, durationHours, software.IsIntensive, out string powerMsg))
+            {
+                Notify($"Operation '{software.Name}' completed successfully. {powerMsg}");
+            }
+            else
             {
                 Notify($"Power Failure: {powerMsg}");
-                return;
             }
-
-            Notify($"Operation '{softwareName}' completed successfully. {powerMsg}");
         }
     }
 }

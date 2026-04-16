@@ -5,8 +5,8 @@ namespace HardwareSim.BLL.Services
 {
     public class PowerService
     {
-        // Evaluates power availability based on Variant 1 logic
-        public bool TryConsumePower(bool hasGrid, IPowerSource battery, IPowerSource ups, double hours, bool isIntensive, out string notification)
+        // Added '?' to IPowerSource to allow nulls (e.g., when a Computer has no battery)
+        public bool TryConsumePower(bool hasGrid, IPowerSource? battery, IPowerSource? ups, double hours, bool isIntensive, out string notification)
         {
             if (hasGrid)
             {

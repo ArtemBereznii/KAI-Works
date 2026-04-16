@@ -5,6 +5,8 @@ namespace HardwareSim.BLL.Entities.Devices
 {
     public class Smartphone : Device
     {
+        public Smartphone() { }
+
         public Smartphone(Processor processor, int batteryCapacity)
         {
             DeviceProcessor = processor;

@@ -4,9 +4,11 @@ namespace HardwareSim.BLL.Entities.Components
 {
     public class Battery : IPowerSource
     {
-        public int CapacityMilliAmpHours { get; }
-        public double RemainingHours { get; private set; }
+        public int CapacityMilliAmpHours { get; set;  }
+        public double RemainingHours { get; set; }
         public bool IsEmpty => RemainingHours <= 0;
+
+        public Battery() { }
 
         private readonly double _drainRateIntenseMultiplier;
 
@@ -14,7 +16,6 @@ namespace HardwareSim.BLL.Entities.Components
         {
             CapacityMilliAmpHours = capacity;
 
-            // Requirements from Variant 1
             if (capacity >= 2000 && capacity <= 3000)
             {
                 RemainingHours = 48.0;
@@ -24,6 +25,11 @@ namespace HardwareSim.BLL.Entities.Components
             {
                 RemainingHours = 12.0;
                 _drainRateIntenseMultiplier = 12.0 / 4.0;
+            }
+            else if (capacity == 500)
+            {
+                RemainingHours = 1;
+                _drainRateIntenseMultiplier = 1.0;
             }
             else
             {
