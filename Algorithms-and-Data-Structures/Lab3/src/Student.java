@@ -2,7 +2,7 @@ public class Student {
     private final String lastName;
     private final String firstName;
     private final int course;
-    private final long studentId; // Using long to represent the unsigned integer requirement
+    private final long studentId;
     private final String cityOfArrival;
 
     public Student(long studentId, String lastName, String firstName, int course, String cityOfArrival) {

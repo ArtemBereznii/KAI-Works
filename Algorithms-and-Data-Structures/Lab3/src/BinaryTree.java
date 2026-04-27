@@ -28,7 +28,7 @@ public class BinaryTree {
     }
 
     public void printTable() {
-        String separator = "-".repeat(63);
+        String separator = "-".repeat(67);
         System.out.println(separator);
         System.out.printf("| %-8s | %-12s | %-10s | %-4s | %-15s |\n",
                 "Квиток", "Прізвище", "Ім'я", "Курс", "Місто прибуття");
