@@ -65,7 +65,7 @@ public class BinaryTree {
         }
     }
 
-    // Видалення вузлів за критерієм (Завдання третього рівня)
+    // Видалення вузлів за критерієм
     public void deleteTargetNodes(String baseCity) {
         List<Student> targets = searchTargetStudents(baseCity);
 
