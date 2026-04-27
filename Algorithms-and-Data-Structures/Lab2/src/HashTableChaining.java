@@ -1,6 +1,5 @@
 import java.util.LinkedList;
 
-// Завдання 2 та 3: Separate Chaining & Deletion
 public class HashTableChaining {
     private final LinkedList<Triangle>[] table;
     private final int size;
