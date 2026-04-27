@@ -41,7 +41,6 @@ public class HashTableChaining {
             if (table[i].isEmpty()) {
                 System.out.println("Порожньо");
             } else {
-                // Print all chained elements on the same line
                 for (Triangle t : table[i]) {
                     System.out.printf("[P=%.2f | %s] -> ", t.getPerimeter(), t);
                 }

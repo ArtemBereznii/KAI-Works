@@ -1,4 +1,3 @@
-// Завдання першого рівня: Hash table that rejects collisions
 public class HashTable {
     private final Triangle[] table;
     private final int size;
@@ -8,19 +7,18 @@ public class HashTable {
         this.table = new Triangle[size];
     }
 
-    // Hashing method: Division (Ділення)
+    // Hashing method: Division
     private int hash(double key) {
         return Math.abs((int) Math.round(key)) % size;
     }
 
-    // Insert operation (returns false if occupied)
     public boolean insert(Triangle t) {
         int index = hash(t.getPerimeter());
         if (table[index] == null) {
             table[index] = t;
             return true;
         }
-        return false; // Collision detected, insertion fails
+        return false;
     }
 
     public void printTable() {

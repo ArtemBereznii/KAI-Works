@@ -6,11 +6,9 @@ public class Main {
         System.out.print("Введіть розмір хеш-таблиці: ");
         int size = scanner.nextInt();
 
-        /* ================= LEVEL 1 ================= */
         HashTable ht1 = new HashTable(size);
         int insertedLevel1 = 0;
 
-        // Loop until we successfully insert enough elements without collisions
         while (insertedLevel1 < size / 2) {
             Triangle t = new Triangle();
             if (ht1.insert(t)) {
@@ -21,10 +19,8 @@ public class Main {
         ht1.printTable();
 
 
-        /* ================= LEVEL 2 ================= */
         HashTableChaining htChaining = new HashTableChaining(size);
 
-        // Insert double the amount of the size to guarantee collisions
         int elementsToInsert = size * 2;
         for (int i = 0; i < elementsToInsert; i++) {
             htChaining.insert(new Triangle());
@@ -33,7 +29,6 @@ public class Main {
         htChaining.printTable();
 
 
-        /* ================= LEVEL 3 ================= */
         System.out.println("\n=== ЗАВДАННЯ ТРЕТЬОГО РІВНЯ ===");
         System.out.print("Введіть мінімальну площу для видалення (наприклад, 20,5): ");
         double minArea = scanner.nextDouble();

@@ -4,7 +4,6 @@ public class Triangle {
     private int x1, y1, x2, y2, x3, y3;
     private double a, b, c;
 
-    // Constructor generates a random, valid triangle
     public Triangle() {
         generateRandom();
     }
@@ -25,17 +24,14 @@ public class Triangle {
         c = Math.hypot(x1 - x3, y1 - y3);
     }
 
-    // Ensures the points form a real triangle (not a line)
     public boolean isValid() {
         return a + b > c && a + c > b && b + c > a;
     }
 
-    // Used as the Key for the hash table (Variant 1 requirement)
     public double getPerimeter() {
         return a + b + c;
     }
 
-    // Used for the deletion criterion in Level 3
     public double getArea() {
         double p = getPerimeter() / 2;
         return Math.sqrt(p * (p - a) * (p - b) * (p - c));
