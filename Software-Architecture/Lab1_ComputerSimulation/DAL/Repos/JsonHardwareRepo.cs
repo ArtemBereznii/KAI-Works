@@ -18,8 +18,10 @@ namespace HardwareSim.DAL.Repositories
         {
             _jsonOptions = new JsonSerializerOptions
             {
-                WriteIndented = true // Makes the JSON file readable for humans
+                WriteIndented = true
             };
+
+            _jsonOptions.Converters.Add(new DeviceJsonConverter());
 
             LoadFromFile();
         }
@@ -34,7 +36,6 @@ namespace HardwareSim.DAL.Repositories
             }
             else
             {
-                // If the file doesn't exist (first run), seed it with your demo data
                 SeedInitialData();
             }
         }

@@ -25,7 +25,6 @@ namespace HardwareSim.PL
         {
             if (e == null) return;
 
-            // Simple prefix to distinguish device events from regular menu text
             Console.WriteLine($"[DEVICE NOTIFICATION]: {e.Message}");
         }
 
@@ -45,7 +44,6 @@ namespace HardwareSim.PL
                 if (input == "y" || input == "yes") return true;
                 if (input == "n" || input == "no") return false;
 
-                // If they type anything else, scold them and loop again!
                 PrintInfo("Invalid input. Please explicitly type 'y' or 'n'.");
             }
         }

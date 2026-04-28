@@ -5,6 +5,8 @@ namespace HardwareSim.BLL.Entities.Devices
 {
     public class Laptop : Device
     {
+        public override DevicePlatform Platform => DevicePlatform.Desktop;
+
         public Laptop() { }
 
         public Laptop(Processor processor, int batteryCapacity)

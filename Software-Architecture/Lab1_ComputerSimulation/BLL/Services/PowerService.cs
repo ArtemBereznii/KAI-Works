@@ -1,46 +1,52 @@
-﻿using System;
-using HardwareSim.BLL.Abstractions;
+﻿using HardwareSim.BLL.Entities.Components;
+using System;
 
 namespace HardwareSim.BLL.Services
 {
     public class PowerService
     {
-        // Added '?' to IPowerSource to allow nulls (e.g., when a Computer has no battery)
-        public bool TryConsumePower(bool hasGrid, IPowerSource? battery, IPowerSource? ups, double hours, bool isIntensive, out string notification)
+        public bool TryConsumePower(bool isConnectedToGrid, Battery? battery, Battery? ups, double durationHours, bool isIntensive, out string message)
         {
-            if (hasGrid)
+            // 1. Grid power is infinite.
+            if (isConnectedToGrid)
             {
-                notification = "Powered by electrical grid.";
+                message = "Powered by the electrical grid. No backup power consumed.";
                 return true;
             }
 
-            if (ups != null && !ups.IsEmpty)
+            Battery? activeSource = battery ?? ups;
+
+            if (activeSource == null)
             {
-                if (ups.RemainingHours >= hours)
-                {
-                    ups.Drain(hours, isIntensive);
-                    notification = $"Powered by UPS. Remaining UPS hours: {Math.Round(ups.RemainingHours, 2)}";
-                    return true;
-                }
-                ups.Drain(ups.RemainingHours, false); // Drain rest
-                notification = "UPS depleted. Device shutting down.";
+                message = "POWER FAILURE! This device has no battery or UPS connected.";
                 return false;
             }
 
-            if (battery != null && !battery.IsEmpty)
+            string sourceName = battery != null ? "Battery" : "UPS";
+
+            double multiplier = isIntensive ? activeSource.DrainRateIntenseMultiplier : 1.0;
+
+            double requiredCapacity = durationHours * multiplier;
+            double availableCapacity = activeSource.RemainingHours;
+
+            if (availableCapacity >= requiredCapacity)
             {
-                battery.Drain(hours, isIntensive);
-                if (battery.IsEmpty)
-                {
-                    notification = "Battery died during operation. Device shutting down.";
-                    return false;
-                }
-                notification = $"Powered by Battery. Remaining non-intense hours: {Math.Round(battery.RemainingHours, 2)}";
+                activeSource.RemainingHours -= requiredCapacity;
+
+                message = $"Completed on {sourceName}. Remaining time: {activeSource.RemainingHours:F2} hours.";
                 return true;
             }
+            else
+            {
+                double capacityShortfall = requiredCapacity - availableCapacity;
 
-            notification = "No power source available. Device is off.";
-            return false;
+                double actualHoursShort = capacityShortfall / multiplier;
+
+                activeSource.RemainingHours = 0;
+
+                message = $"POWER FAILURE! The {sourceName} died during the operation. You were short by {actualHoursShort:F2} hours.";
+                return false;
+            }
         }
     }
 }

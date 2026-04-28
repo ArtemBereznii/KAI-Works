@@ -10,9 +10,6 @@ using System.Text.Json.Serialization;
 
 namespace HardwareSim.BLL.Entities.Base
 {
-    [JsonDerivedType(typeof(Computer), typeDiscriminator: "Computer")]
-    [JsonDerivedType(typeof(Laptop), typeDiscriminator: "Laptop")]
-    [JsonDerivedType(typeof(Smartphone), typeDiscriminator: "Smartphone")]
     public abstract class Device : IDevice
     {
         public event EventHandler<HardwareEventArgs>? OnStateNotification;
@@ -24,6 +21,7 @@ namespace HardwareSim.BLL.Entities.Base
         public Processor? DeviceProcessor { get; set; }
         public Battery? DeviceBattery { get; set; }
         public Battery? DeviceUPS { get; set; }
+        public abstract DevicePlatform Platform { get; }
 
         public List<HardwarePeripheral> ConnectedPeripherals { get; set; } = new();
 
@@ -39,7 +37,18 @@ namespace HardwareSim.BLL.Entities.Base
         public void SetGridConnection(bool isConnected)
         {
             IsConnectedToGrid = isConnected;
-            Notify(isConnected ? "Device plugged into grid." : "Grid power lost.");
+
+            if (isConnected)
+            {
+                DeviceBattery?.Recharge();
+                DeviceUPS?.Recharge();
+
+                Notify("Device plugged into grid. Batteries are fully recharged.");
+            }
+            else
+            {
+                Notify("Grid power lost. Switching to backup power.");
+            }
         }
 
         public void SetNetworkConnection(bool isConnected)

@@ -5,6 +5,8 @@ namespace HardwareSim.BLL.Entities.Devices
 {
     public class Computer : Device
     {
+        public override DevicePlatform Platform => DevicePlatform.Desktop;
+
         public Computer() { }
 
         public Computer(Processor processor, bool includeUPS = false)

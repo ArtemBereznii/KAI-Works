@@ -1,4 +1,5 @@
-﻿using HardwareSim.DAL.Repositories;
+﻿using HardwareSim.BLL.Services;
+using HardwareSim.DAL.Repositories;
 
 namespace HardwareSim.PL
 {
@@ -6,13 +7,14 @@ namespace HardwareSim.PL
     {
         static void Main(string[] args)
         {
-            // Initialize the data access layer
-            var mockRepo = new JsonHardwareRepo();
+            var deviceRepo = new JsonHardwareRepo();
+            var catalogRepo = new JsonCatalogRepo();
 
-            // Pass the data to the simulation engine
-            var engine = new SimulationEngine(mockRepo);
+            var powerService = new PowerService();
+            var storeService = new StoreService(catalogRepo);
 
-            // Start the interactive console loop
+            var engine = new SimulationEngine(deviceRepo, powerService, storeService);
+
             engine.Start();
         }
     }
