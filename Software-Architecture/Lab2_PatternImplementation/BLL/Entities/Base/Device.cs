@@ -25,10 +25,10 @@ namespace HardwareSim.BLL.Entities.Base
 
         public List<HardwarePeripheral> ConnectedPeripherals { get; set; } = new();
 
-        // Injecting services via Composition
         private readonly PowerService _powerService = new();
         private readonly SoftwareManager _softwareManager = new();
 
+        // Event publisher
         protected void Notify(string message)
         {
             OnStateNotification?.Invoke(this, new HardwareEventArgs(message));

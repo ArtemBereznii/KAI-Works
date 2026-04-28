@@ -21,6 +21,7 @@ namespace HardwareSim.PL
             Console.WriteLine($"[INFO] {message}");
         }
 
+        // The Observer
         public static void HandleDeviceNotification(object? sender, HardwareEventArgs? e)
         {
             if (e == null) return;
