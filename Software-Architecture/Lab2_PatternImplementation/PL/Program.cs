@@ -1,4 +1,5 @@
-﻿using HardwareSim.BLL.Services;
+﻿using HardwareSim.BLL.Features.PowerManagement;
+using HardwareSim.BLL.Features.Store;
 using HardwareSim.DAL.Repositories;
 
 namespace HardwareSim.PL

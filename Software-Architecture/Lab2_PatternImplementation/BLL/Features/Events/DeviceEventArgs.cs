@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HardwareSim.BLL.Events
+namespace HardwareSim.BLL.Features.Events
 {
     public class HardwareEventArgs : EventArgs
     {

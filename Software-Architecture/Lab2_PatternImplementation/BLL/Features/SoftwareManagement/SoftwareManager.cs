@@ -1,6 +1,6 @@
 ﻿using HardwareSim.BLL.Entities.Components;
 
-namespace HardwareSim.BLL.Services
+namespace HardwareSim.BLL.Features.SoftwareManagement
 {
     public class SoftwareManager
     {

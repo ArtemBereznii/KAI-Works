@@ -1,5 +1,5 @@
 ﻿using System;
-using HardwareSim.BLL.Events;
+using HardwareSim.BLL.Features.Events;
 
 namespace HardwareSim.PL
 {

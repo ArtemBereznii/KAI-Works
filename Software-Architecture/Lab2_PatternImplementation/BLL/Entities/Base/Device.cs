@@ -1,8 +1,9 @@
 ﻿using HardwareSim.BLL.Abstractions;
 using HardwareSim.BLL.Entities.Components;
 using HardwareSim.BLL.Entities.Devices;
-using HardwareSim.BLL.Events;
-using HardwareSim.BLL.Services;
+using HardwareSim.BLL.Features.Events;
+using HardwareSim.BLL.Features.PowerManagement;
+using HardwareSim.BLL.Features.SoftwareManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,7 +1,7 @@
 ﻿using HardwareSim.BLL.Entities.Components;
 using System;
 
-namespace HardwareSim.BLL.Services
+namespace HardwareSim.BLL.Features.PowerManagement
 {
     public class PowerService
     {

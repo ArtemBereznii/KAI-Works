@@ -4,7 +4,7 @@ using HardwareSim.BLL.Entities.Base;
 using HardwareSim.BLL.Entities.Components;
 using HardwareSim.DAL.Interfaces;
 
-namespace HardwareSim.BLL.Services
+namespace HardwareSim.BLL.Features.Store
 {
     public class StoreService
     {
