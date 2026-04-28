@@ -1,6 +1,8 @@
 ﻿using HardwareSim.BLL.Entities.Base;
 using HardwareSim.BLL.Entities.Components;
 using HardwareSim.BLL.Features.Store;
+using HardwareSim.BLL.Features.SoftwareManagement;
+using HardwareSim.BLL.Features.HardwareManagement;
 using HardwareSim.BLL.Services;
 using HardwareSim.DAL.Interfaces;
 
@@ -257,14 +259,7 @@ namespace HardwareSim.PL
                     Console.WriteLine("Select Platform (0=Desktop, 1=Mobile, 2=Universal): ");
                     DevicePlatform platform = (DevicePlatform)int.Parse(Console.ReadLine() ?? "2");
 
-                    AppSoftware newApp = new AppSoftware
-                    {
-                        Name = name,
-                        IsIntensive = isIntensive,
-                        RequiresAudio = reqAudio,
-                        RequiresNetwork = reqNet,
-                        SupportedPlatform = platform
-                    };
+                    AppSoftware newApp = SoftwareFactory.CreateApp(name, isIntensive, reqAudio, reqNet, platform);
 
                     _storeService.PublishNewSoftware(newApp);
                     ConsoleManager.PrintInfo($"SUCCESS: '{name}' is now live in the global App Store!");
@@ -277,12 +272,7 @@ namespace HardwareSim.PL
                     Console.WriteLine("Select Platform (0=Desktop, 1=Mobile, 2=Universal): ");
                     DevicePlatform platform = (DevicePlatform)int.Parse(Console.ReadLine() ?? "2");
 
-                    HardwarePeripheral newPeripheral = new HardwarePeripheral
-                    {
-                        Name = name,
-                        IsAudioDevice = isAudio,
-                        SupportedPlatform = platform
-                    };
+                    HardwarePeripheral newPeripheral = PeripheralFactory.CreatePeripheral(name, isAudio, platform);
 
                     _storeService.PublishNewPeripheral(newPeripheral);
                     ConsoleManager.PrintInfo($"SUCCESS: '{name}' is now available for purchase!");
