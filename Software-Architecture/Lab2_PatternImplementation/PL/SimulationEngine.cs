@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
-using HardwareSim.BLL.Entities.Base;
+﻿using HardwareSim.BLL.Entities.Base;
 using HardwareSim.BLL.Entities.Components;
-using HardwareSim.BLL.Features.PowerManagement;
 using HardwareSim.BLL.Features.Store;
+using HardwareSim.BLL.Services;
 using HardwareSim.DAL.Interfaces;
 
 namespace HardwareSim.PL

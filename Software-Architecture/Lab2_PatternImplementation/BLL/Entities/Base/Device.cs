@@ -1,13 +1,9 @@
 ﻿using HardwareSim.BLL.Abstractions;
 using HardwareSim.BLL.Entities.Components;
-using HardwareSim.BLL.Entities.Devices;
 using HardwareSim.BLL.Features.Events;
 using HardwareSim.BLL.Features.PowerManagement;
 using HardwareSim.BLL.Features.SoftwareManagement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
+using HardwareSim.BLL.Services;
 
 namespace HardwareSim.BLL.Entities.Base
 {
@@ -81,7 +77,6 @@ namespace HardwareSim.BLL.Entities.Base
 
         public void ExecuteOperation(string softwareName, double durationHours)
         {
-            // 1. Get the actual software object from Memory
             var software = DeviceMemory.GetSoftware(softwareName);
             if (software == null)
             {
@@ -91,15 +86,17 @@ namespace HardwareSim.BLL.Entities.Base
 
             bool hasAudio = ConnectedPeripherals.Any(p => p.IsAudioDevice);
 
-            // 2. Validate prerequisites using the object's real properties
             if (!_softwareManager.ValidatePrerequisites(software, HasNetworkConnection, hasAudio, out string error))
             {
                 Notify($"Operation Failed: {error}");
                 return;
             }
 
-            // 3. Consume power using the object's built-in IsIntensive property!
-            if (_powerService.TryConsumePower(IsConnectedToGrid, DeviceBattery, DeviceUPS, durationHours, software.IsIntensive, out string powerMsg))
+            IPowerDrainStrategy drainStrategy = software.IsIntensive
+                ? new IntensiveDrainStrategy()
+                : new NormalDrainStrategy();
+
+            if (_powerService.TryConsumePower(IsConnectedToGrid, DeviceBattery, DeviceUPS, durationHours, drainStrategy, out string powerMsg))
             {
                 Notify($"Operation '{software.Name}' completed successfully. {powerMsg}");
             }
