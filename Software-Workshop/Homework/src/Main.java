@@ -2,7 +2,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Запуск програми. Для зупинки натисніть Ctrl+C");
 
-        // Створюємо три окремі потоки з різними цифрами та затримками (у мілісекундах)
+        // Створюємо три окремі потоки
         Thread thread1 = new Thread(new NumberTask(1, 1000));
         Thread thread2 = new Thread(new NumberTask(2, 2000));
         Thread thread3 = new Thread(new NumberTask(3, 3000));
