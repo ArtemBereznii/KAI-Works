@@ -38,7 +38,7 @@ namespace HardwareSim.PL
             while (running)
             {
                 string[] menuOptions = {
-                    "Execute Operation (Work/Play/Music)",
+                    "Execute Operation",
                     "Toggle Power Grid Connection",
                     "Toggle Network Connection",
                     "Manage Software (App Store / Uninstall)",
@@ -288,21 +288,37 @@ namespace HardwareSim.PL
         {
             if (_currentDevice == null) return;
 
-            string name = ConsoleManager.ReadInput("Enter software name to run");
+            var installedApps = _currentDevice.DeviceMemory.InstalledSoftware.ToList();
 
-            if (!_currentDevice.DeviceMemory.IsInstalled(name))
+            if (!installedApps.Any())
             {
-                ConsoleManager.PrintInfo($"Operation Cancelled: '{name}' is not installed.");
+                ConsoleManager.PrintInfo("No software is currently installed. Please visit the App Store first.");
                 return;
             }
 
-            if (!double.TryParse(ConsoleManager.ReadInput("Enter duration in hours (e.g., 2.5)"), out double hours))
+            Console.WriteLine($"\n--- INSTALLED SOFTWARE ON {_currentDevice.GetType().Name.ToUpper()} ---");
+            for (int i = 0; i < installedApps.Count; i++)
             {
-                ConsoleManager.PrintInfo("Invalid duration.");
-                return;
+                Console.WriteLine($"{i + 1}. {installedApps[i].Name} (Intensive: {installedApps[i].IsIntensive})");
             }
 
-            _currentDevice.ExecuteOperation(name, hours);
+            Console.Write("Enter the number of the app to run (or 0 to cancel): ");
+            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= installedApps.Count)
+            {
+                var selectedApp = installedApps[index - 1];
+
+                if (!double.TryParse(ConsoleManager.ReadInput($"Enter duration in hours to run '{selectedApp.Name}' (e.g., 2.5)"), out double hours))
+                {
+                    ConsoleManager.PrintInfo("Invalid duration.");
+                    return;
+                }
+
+                _currentDevice.ExecuteOperation(selectedApp.Name, hours);
+            }
+            else
+            {
+                ConsoleManager.PrintInfo("Operation cancelled.");
+            }
         }
     }
 }
