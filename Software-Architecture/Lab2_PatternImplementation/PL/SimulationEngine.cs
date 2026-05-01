@@ -256,8 +256,8 @@ namespace HardwareSim.PL
                     bool reqAudio = ConsoleManager.ReadBool("Requires audio?");
                     bool reqNet = ConsoleManager.ReadBool("Requires network?");
 
-                    Console.WriteLine("Select Platform (0=Desktop, 1=Mobile, 2=Universal): ");
-                    DevicePlatform platform = (DevicePlatform)int.Parse(Console.ReadLine() ?? "2");
+                    int platformChoice = ConsoleManager.ReadInt("Select Platform (0=Desktop, 1=Mobile, 2=Universal)", 0, 2);
+                    DevicePlatform platform = (DevicePlatform)platformChoice;
 
                     AppSoftware newApp = SoftwareFactory.CreateApp(name, isIntensive, reqAudio, reqNet, platform);
 
@@ -269,8 +269,8 @@ namespace HardwareSim.PL
                     string name = ConsoleManager.ReadInput("Enter Peripheral Name");
                     bool isAudio = ConsoleManager.ReadBool("Is it an audio device?");
 
-                    Console.WriteLine("Select Platform (0=Desktop, 1=Mobile, 2=Universal): ");
-                    DevicePlatform platform = (DevicePlatform)int.Parse(Console.ReadLine() ?? "2");
+                    int platformChoice = ConsoleManager.ReadInt("Select Platform (0=Desktop, 1=Mobile, 2=Universal)", 0, 2);
+                    DevicePlatform platform = (DevicePlatform)platformChoice;
 
                     HardwarePeripheral newPeripheral = PeripheralFactory.CreatePeripheral(name, isAudio, platform);
 

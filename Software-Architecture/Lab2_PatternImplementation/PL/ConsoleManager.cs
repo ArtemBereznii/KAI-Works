@@ -48,5 +48,20 @@ namespace HardwareSim.PL
                 PrintInfo("Invalid input. Please explicitly type 'y' or 'n'.");
             }
         }
+
+        public static int ReadInt(string prompt, int min, int max)
+        {
+            while (true)
+            {
+                Console.Write($"{prompt}: ");
+                if (int.TryParse(Console.ReadLine(), out int result) && result >= min && result <= max)
+                {
+                    return result; // They typed a valid number, let them pass!
+                }
+
+                // They typed letters, hit Enter, or went out of bounds. Scold them!
+                PrintInfo($"Invalid input. Please enter a number between {min} and {max}.");
+            }
+        }
     }
 }
