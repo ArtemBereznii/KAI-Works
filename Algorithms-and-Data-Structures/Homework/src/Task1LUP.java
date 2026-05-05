@@ -3,13 +3,13 @@ import java.util.Scanner;
 public class Task1LUP {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int n = 4; // Розмірність системи згідно з варіантом 1
+        int n = 4;
 
         double[][] A = new double[n][n];
         double[] b = new double[n];
 
         System.out.println("Введіть матрицю коефіцієнтів A (" + n + "x" + n + "):");
-        /* Для швидкого тестування варіанту 1 скопіюй і встав:
+        /*
            5 -1 -8 -7
           -7 8 6 -5
            1 -6 3 -10
@@ -22,7 +22,7 @@ public class Task1LUP {
         }
 
         System.out.println("Введіть вектор вільних членів b (" + n + "):");
-        /* Для швидкого тестування варіанту 1 скопіюй і встав:
+        /*
            140 -45 68 13
         */
         for (int i = 0; i < n; i++) {
@@ -36,7 +36,6 @@ public class Task1LUP {
         double[][] U = new double[n][n];
         double[][] P = new double[n][n];
 
-        // Ініціалізація P як одиничної матриці, U як копії A
         for (int i = 0; i < n; i++) {
             P[i][i] = 1.0;
             System.arraycopy(A[i], 0, U[i], 0, n);
@@ -44,7 +43,6 @@ public class Task1LUP {
 
         // LUP-розкладання
         for (int i = 0; i < n; i++) {
-            // Пошук головного елемента (pivoting)
             double pivot = 0;
             int pivotRow = i;
             for (int row = i; row < n; row++) {
@@ -76,7 +74,6 @@ public class Task1LUP {
         System.out.println("--- Матриця U (Верхньо-трикутна) ---");
         printMatrix(U);
 
-        // Розв'язання Ly = Pb
         double[] Pb = multiply(P, b);
         double[] y = new double[n];
         for (int i = 0; i < n; i++) {
@@ -86,7 +83,6 @@ public class Task1LUP {
             }
         }
 
-        // Розв'язання Ux = y
         double[] x = new double[n];
         for (int i = n - 1; i >= 0; i--) {
             x[i] = y[i];
