@@ -21,4 +21,12 @@ public class Tag : BaseEntity
 
         return new Tag(name);
     }
+
+    public void CorrectName(string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName))
+            throw new ArgumentException("Tag name cannot be empty", nameof(newName));
+
+        Name = newName;
+    }
 }

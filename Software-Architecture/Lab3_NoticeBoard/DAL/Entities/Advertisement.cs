@@ -68,15 +68,19 @@ public class Advertisement : BaseEntity
         Status = AdStatus.Deactivated;
     }
 
-    public void UpdateContent(string newTitle, string newContent)
+    public void CorrectTitle(string newTitle)
     {
         if (string.IsNullOrWhiteSpace(newTitle))
             throw new ArgumentException("Title cannot be empty", nameof(newTitle));
 
+        Title = newTitle;
+    }
+
+    public void CorrectContent(string newContent)
+    {
         if (string.IsNullOrWhiteSpace(newContent))
             throw new ArgumentException("Content cannot be empty", nameof(newContent));
 
-        Title = newTitle;
         Content = newContent;
     }
 }

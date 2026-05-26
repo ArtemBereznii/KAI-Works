@@ -28,4 +28,17 @@ public class Category : BaseEntity
 
         return new Category(name, parentCategoryId);
     }
+
+    public void CorrectName(string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName))
+            throw new ArgumentException("Name cannot be empty", nameof(newName));
+
+        Name = newName;
+    }
+
+    public void ChangeParent(Guid? newParentId)
+    {
+        ParentCategoryId = newParentId;
+    }
 }

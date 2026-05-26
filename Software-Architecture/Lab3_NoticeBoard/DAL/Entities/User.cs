@@ -21,4 +21,12 @@ public class User : BaseEntity
 
         return new User(username);
     }
+
+    public void CorrectUsername(string newUsername)
+    {
+        if (string.IsNullOrWhiteSpace(newUsername))
+            throw new ArgumentException("Username cannot be empty", nameof(newUsername));
+
+        Username = newUsername;
+    }
 }
