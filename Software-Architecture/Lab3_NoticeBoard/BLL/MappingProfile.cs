@@ -11,7 +11,8 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<Category, CategoryResponse>();
+        CreateMap<Category, CategoryResponse>()
+            .ForMember(dest => dest.Subcategories, opt => opt.MapFrom(src => src.Subcategories));
 
         CreateMap<Tag, TagResponse>();
 

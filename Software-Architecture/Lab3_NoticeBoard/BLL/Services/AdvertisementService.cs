@@ -128,7 +128,15 @@ public class AdvertisementService : BaseService, IAdvertisementService
         var activeAds = await _unitOfWork.Advertisements.GetActiveAdvertisementsAsync(cancellationToken);
 
         if (request.CategoryId.HasValue)
-            activeAds = activeAds.Where(a => a.CategoryId == request.CategoryId.Value);
+        {
+            var categoryIdsToSearch = new List<Guid> { request.CategoryId.Value };
+
+            var subcategories = await _unitOfWork.Categories.GetSubcategoriesAsync(request.CategoryId.Value, cancellationToken);
+
+            categoryIdsToSearch.AddRange(subcategories.Select(c => c.Id));
+
+            activeAds = activeAds.Where(a => categoryIdsToSearch.Contains(a.CategoryId));
+        }
 
         if (request.UserId.HasValue)
             activeAds = activeAds.Where(a => a.UserId == request.UserId.Value);
