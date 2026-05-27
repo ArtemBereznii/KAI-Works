@@ -378,3 +378,6 @@ main
 *.vcxproj.filters
 *.vcxproj.user
 x64/
+
+# Ignore environment variables
+.env
