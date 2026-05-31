@@ -4,12 +4,12 @@ using FluentValidation;
 
 namespace PL.Middleware;
 
-public class GlobalExceptionMiddleware
+public class GlobalExceptionHandler
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalExceptionMiddleware> _logger;
+    private readonly ILogger<GlobalExceptionHandler> _logger;
 
-    public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
+    public GlobalExceptionHandler(RequestDelegate next, ILogger<GlobalExceptionHandler> logger)
     {
         _next = next;
         _logger = logger;
