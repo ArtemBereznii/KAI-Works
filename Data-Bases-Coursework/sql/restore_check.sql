@@ -57,7 +57,10 @@ SELECT count(*) AS overview_rows, sum(balance) AS overview_balance FROM v_card_o
 SELECT * FROM fn_card_statement('4000000000000009', '2026-10-15', '2026-10-17');
 
 \echo '--- Обмеження й тригери працюють'
+-- Результати повертаються рядками (stdout), а не NOTICE (stderr): restore_test.sh
+-- зливає обидва потоки в один файл, і порядок NOTICE відносно рядків не гарантований.
 BEGIN;
+CREATE TEMP TABLE restore_probe (check_name text, result text) ON COMMIT DROP;
 DO $$
 DECLARE v_state text;
 BEGIN
@@ -66,14 +69,15 @@ BEGIN
         v_state := 'вставлено';
     EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
     END;
-    RAISE NOTICE 'дублікат номера картки: %', v_state;
+    INSERT INTO restore_probe VALUES ('дублікат номера картки', v_state);
     BEGIN
         DELETE FROM charges WHERE id = (SELECT min(id) FROM charges);
         v_state := 'видалено';
     EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS v_state = MESSAGE_TEXT;
     END;
-    RAISE NOTICE 'видалення з журналу: %', left(v_state, 4);
+    INSERT INTO restore_probe VALUES ('видалення з журналу', left(v_state, 4));
 END $$;
+SELECT check_name, result FROM restore_probe ORDER BY check_name;
 ROLLBACK;
 
 \echo '--- Права ролей'

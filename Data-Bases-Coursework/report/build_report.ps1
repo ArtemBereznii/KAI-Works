@@ -29,6 +29,29 @@ $cm = 28.3465
 $lines = [System.IO.File]::ReadAllLines((Resolve-Path $Source), [System.Text.Encoding]::UTF8)
 $baseDir = Split-Path (Resolve-Path $Source) -Parent
 
+# Коли Word зайнятий (запуск, вікно активації), він відхиляє COM-виклики з
+# RPC_E_CALL_REJECTED. Фільтр повідомлень повторює такий виклик до 2 хвилин.
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+[ComImport, Guid("00000016-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IOleMessageFilter {
+    [PreserveSig] int HandleInComingCall(int callType, IntPtr caller, int tick, IntPtr info);
+    [PreserveSig] int RetryRejectedCall(IntPtr callee, int tick, int rejectType);
+    [PreserveSig] int MessagePending(IntPtr callee, int tick, int pendingType);
+}
+public class ComRetryFilter : IOleMessageFilter {
+    [DllImport("Ole32.dll")]
+    private static extern int CoRegisterMessageFilter(IOleMessageFilter newFilter, out IOleMessageFilter oldFilter);
+    public static void Register() { IOleMessageFilter old; CoRegisterMessageFilter(new ComRetryFilter(), out old); }
+    public static void Revoke() { IOleMessageFilter old; CoRegisterMessageFilter(null, out old); }
+    int IOleMessageFilter.HandleInComingCall(int callType, IntPtr caller, int tick, IntPtr info) { return 0; }
+    int IOleMessageFilter.RetryRejectedCall(IntPtr callee, int tick, int rejectType) { return (rejectType == 2 && tick < 120000) ? 250 : -1; }
+    int IOleMessageFilter.MessagePending(IntPtr callee, int tick, int pendingType) { return 2; }
+}
+"@
+[ComRetryFilter]::Register()
+
 $word = New-Object -ComObject Word.Application
 $word.Visible = $false
 $word.ScreenUpdating = $false
@@ -245,9 +268,8 @@ try {
 
     # Зміст і поля оновлюються після вставлення всього тексту — у режимі розмітки сторінки,
     # бо саме ним Word розбиває сторінки під час експорту в PDF.
-    # Прихований Word розбиває сторінки інакше, ніж видимий, тому для оновлення змісту
-    # вікно показується згорнутим.
-    $word.Visible = $true; $word.WindowState = 2
+    # Word лишається прихованим: у видимому вікні неактивований Office переходить в обмежений
+    # режим. Остаточні номери сторінок у змісті ставляться нижче, у перевідкритому файлі.
     $word.ScreenUpdating = $true
     $doc.ActiveWindow.View.Type = 3
     $doc.Repaginate()

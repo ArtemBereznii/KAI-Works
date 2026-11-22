@@ -3,10 +3,10 @@ pg_dump (PostgreSQL) 18.7 (Debian 18.7-1.pgdg13+5)
 pg_restore (PostgreSQL) 18.7 (Debian 18.7-1.pgdg13+5)
 === 1. Дамп transit_db (custom format)
 
-real	0m2.126s
-user	0m0.000s
-sys	0m0.136s
--rw-r--r-- 1 root root 9055024 Nov 22 19:47 /tmp/transit_db.dump
+real	0m2.457s
+user	0m0.015s
+sys	0m0.513s
+-rw-r--r-- 1 root root 9055011 Nov 22 21:11 /tmp/transit_db.dump
 --- Зміст дампу (кількість записів TOC за типом)
       1 ACL -
      31 ACL transit
@@ -26,15 +26,14 @@ sys	0m0.136s
       6 TRIGGER transit
       3 VIEW transit
 === 2. Нова порожня база course_restore
-NOTICE:  database "course_restore" does not exist, skipping
 === 3. Відновлення
 
-real	0m3.985s
-user	0m0.046s
-sys	0m0.482s
+real	0m3.639s
+user	0m0.015s
+sys	0m0.122s
 === 4. Контрольні вибірки на обох базах
 === 5. Порівняння
-Результати контрольних вибірок ідентичні (139 рядків)
+Результати контрольних вибірок ідентичні (143 рядків)
 
 === Повний вивід restore_check.sql на course_restore (на transit_db — ідентичний)
 SET
@@ -134,9 +133,13 @@ SET
 
 --- Обмеження й тригери працюють
 BEGIN
-psql:/work/sql/restore_check.sql:76: NOTICE:  дублікат номера картки: 23505
-psql:/work/sql/restore_check.sql:76: NOTICE:  видалення з журналу: BR17
+CREATE TABLE
 DO
+       check_name       | result 
+------------------------+--------
+ видалення з журналу    | BR17
+ дублікат номера картки | 23505
+
 ROLLBACK
 --- Права ролей
      grantee     |      table_name      |  privileges   
