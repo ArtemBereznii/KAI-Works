@@ -11,6 +11,10 @@ DROP SCHEMA IF EXISTS transit CASCADE;
 -- рівність (=) за ключем і перетин (&&) діапазонів дат/часу.
 CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
 
+-- Звіти за календарними днями будуються за київським часом незалежно від клієнта.
+ALTER DATABASE :"DBNAME" SET timezone = 'Europe/Kyiv';
+SET timezone = 'Europe/Kyiv';
+
 CREATE SCHEMA transit;
 COMMENT ON SCHEMA transit IS
     'ІС електронних проїзних документів (курсова «Бази даних», варіант 67)';

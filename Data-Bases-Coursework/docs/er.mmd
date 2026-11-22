@@ -14,6 +14,7 @@ erDiagram
     transport_types ||--o{ validators : "обслуговує"
     validators ||--o{ trips : "реєструє"
     card_subscriptions |o--o{ trips : "оплачує"
+    trips |o--o| trips : "пересадка від"
     trips |o--o| charges : "оплачена списанням"
     card_subscriptions |o--o| charges : "куплений списанням"
 
@@ -111,6 +112,7 @@ erDiagram
         timestamptz validated_at
         text payment_method
         integer subscription_id FK "NULL"
+        bigint transfer_from_trip_id FK,UK "NULL"
     }
     charges {
         bigint id PK

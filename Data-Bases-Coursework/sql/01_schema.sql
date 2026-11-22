@@ -157,7 +157,7 @@ CREATE TABLE card_subscriptions (
     )
 );
 COMMENT ON TABLE card_subscriptions IS
-    'Проїзні на картці; вичерпаний пакет закривається (valid_to = момент останньої поїздки)';
+    'Проїзні на картці; вичерпаний пакет закривається моментом початку нового проїзного';
 
 -- ---------------------------------------------------------------------------
 -- 9. Валідатори
@@ -200,12 +200,20 @@ CREATE TABLE trips (
     payment_method   text NOT NULL
                      CHECK (payment_method IN ('balance', 'subscription', 'transfer', 'free')),
     subscription_id  integer REFERENCES card_subscriptions (id) ON DELETE RESTRICT,
+    -- BR10: платна поїздка, до якої прив'язана безкоштовна пересадка.
+    -- UNIQUE гарантує не більше однієї пересадки на одну платну поїздку.
+    transfer_from_trip_id bigint UNIQUE REFERENCES trips (id) ON DELETE RESTRICT,
     -- одна картка не може мати дві валідації в один і той самий момент
     CONSTRAINT trips_card_time_uq UNIQUE (card_id, validated_at),
     -- посилання на проїзний є тоді й лише тоді, коли поїздку оплачено проїзним
     CONSTRAINT trips_subscription_chk CHECK (
         (payment_method = 'subscription') = (subscription_id IS NOT NULL)
-    )
+    ),
+    -- посилання на платну поїздку є тоді й лише тоді, коли це пересадка
+    CONSTRAINT trips_transfer_chk CHECK (
+        (payment_method = 'transfer') = (transfer_from_trip_id IS NOT NULL)
+    ),
+    CONSTRAINT trips_transfer_not_self_chk CHECK (transfer_from_trip_id <> id)
 );
 COMMENT ON TABLE trips IS 'Поїздки: кожна успішна валідація картки';
 COMMENT ON COLUMN trips.payment_method IS
@@ -236,3 +244,13 @@ CREATE TABLE charges (
     )
 );
 COMMENT ON TABLE charges IS 'Журнал списань: оплата поїздки з балансу або купівля проїзного';
+
+-- ---------------------------------------------------------------------------
+-- Індекси, яких немає серед індексів обмежень (PK/UNIQUE/EXCLUDE)
+-- ---------------------------------------------------------------------------
+-- Виписка картки (fn_card_statement) і перевірка ON DELETE RESTRICT при видаленні картки.
+CREATE INDEX top_ups_card_time_idx ON top_ups (card_id, created_at);
+CREATE INDEX charges_card_time_idx ON charges (card_id, charged_at);
+-- Індекси для trips за часом і за валідатором навмисно не створюються тут:
+-- їхній вплив вимірюється в дослідженні продуктивності (09_perf.sql).
+-- trips (card_id, validated_at) уже покрито обмеженням trips_card_time_uq.
