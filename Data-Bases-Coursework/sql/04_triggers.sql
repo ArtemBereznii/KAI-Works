@@ -5,12 +5,10 @@
 
 SET search_path = transit, public;
 
--- ---------------------------------------------------------------------------
 -- BR05: дозволені переходи статусу картки
 --   active  → blocked | lost
 --   blocked → active  | lost
 --   lost    → (кінцевий стан)
--- ---------------------------------------------------------------------------
 CREATE FUNCTION fn_trg_card_status_guard() RETURNS trigger
 LANGUAGE plpgsql
 AS $$
@@ -31,10 +29,8 @@ CREATE TRIGGER trg_cards_status_guard
     WHEN (OLD.status IS DISTINCT FROM NEW.status)
     EXECUTE FUNCTION fn_trg_card_status_guard();
 
--- ---------------------------------------------------------------------------
 -- Аудит статусу: хто, коли, з якого на який статус і чому.
 -- Причину процедури передають через параметр транзакції transit.status_reason.
--- ---------------------------------------------------------------------------
 CREATE FUNCTION fn_trg_card_status_audit() RETURNS trigger
 LANGUAGE plpgsql
 AS $$
@@ -60,10 +56,8 @@ CREATE TRIGGER trg_cards_status_audit_upd
     WHEN (OLD.status IS DISTINCT FROM NEW.status)
     EXECUTE FUNCTION fn_trg_card_status_audit();
 
--- ---------------------------------------------------------------------------
 -- BR17: записи журналів операцій незмінні — помилкову операцію виправляють
 -- новою (компенсуючою) операцією, а не редагуванням історії.
--- ---------------------------------------------------------------------------
 CREATE FUNCTION fn_trg_journal_immutable() RETURNS trigger
 LANGUAGE plpgsql
 AS $$

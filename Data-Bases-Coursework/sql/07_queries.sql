@@ -196,9 +196,7 @@ SELECT * FROM v_daily_revenue
 WHERE day BETWEEN DATE '2026-11-15' AND DATE '2026-11-21'
 ORDER BY day;
 
--- ===========================================================================
 -- Операції зміни даних
--- ===========================================================================
 
 \echo '=== M1. INSERT … RETURNING: реєстрація нового пасажира'
 INSERT INTO passengers (last_name, first_name, birth_date, phone, email)

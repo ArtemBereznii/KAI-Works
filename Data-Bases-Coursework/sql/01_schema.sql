@@ -14,9 +14,7 @@
 
 SET search_path = transit, public;
 
--- ---------------------------------------------------------------------------
 -- 1. Пільгові категорії пасажирів
--- ---------------------------------------------------------------------------
 CREATE TABLE privilege_categories (
     id            smallint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     code          text         NOT NULL UNIQUE
@@ -28,9 +26,7 @@ CREATE TABLE privilege_categories (
 );
 COMMENT ON TABLE privilege_categories IS 'Пільгові категорії та розмір знижки на проїзд';
 
--- ---------------------------------------------------------------------------
 -- 2. Пасажири — власники персоналізованих карток
--- ---------------------------------------------------------------------------
 CREATE TABLE passengers (
     id                      integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     last_name               text NOT NULL CHECK (btrim(last_name) <> ''),
@@ -49,9 +45,7 @@ CREATE TABLE passengers (
 );
 COMMENT ON TABLE passengers IS 'Пасажири; картка може не мати власника (анонімна)';
 
--- ---------------------------------------------------------------------------
 -- 3. Транспортні картки
--- ---------------------------------------------------------------------------
 CREATE TABLE cards (
     id                 integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     card_number        text NOT NULL UNIQUE
@@ -71,9 +65,7 @@ CREATE TABLE cards (
 COMMENT ON TABLE cards IS 'Транспортні картки; прострочення визначається valid_until, а не статусом';
 COMMENT ON COLUMN cards.balance IS 'Кешований баланс; звіряється з журналами top_ups і charges';
 
--- ---------------------------------------------------------------------------
 -- 4. Історія змін статусу картки (заповнює AFTER-тригер)
--- ---------------------------------------------------------------------------
 CREATE TABLE card_status_history (
     id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     card_id     integer NOT NULL REFERENCES cards (id) ON DELETE RESTRICT,
@@ -87,9 +79,7 @@ CREATE TABLE card_status_history (
 );
 COMMENT ON TABLE card_status_history IS 'Журнал аудиту статусів карток';
 
--- ---------------------------------------------------------------------------
 -- 5. Види транспорту
--- ---------------------------------------------------------------------------
 CREATE TABLE transport_types (
     id    smallint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     code  text NOT NULL UNIQUE CHECK (code ~ '^[a-z_]{2,20}$'),
@@ -97,9 +87,7 @@ CREATE TABLE transport_types (
 );
 COMMENT ON TABLE transport_types IS 'Довідник видів транспорту';
 
--- ---------------------------------------------------------------------------
 -- 6. Вартість разової поїздки з періодом дії
--- ---------------------------------------------------------------------------
 CREATE TABLE fares (
     id                 integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     transport_type_id  smallint NOT NULL
@@ -116,9 +104,7 @@ CREATE TABLE fares (
 );
 COMMENT ON TABLE fares IS 'Історія вартості разової поїздки за видом транспорту';
 
--- ---------------------------------------------------------------------------
 -- 7. Тарифні плани (проїзні)
--- ---------------------------------------------------------------------------
 CREATE TABLE tariff_plans (
     id                 smallint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     code               text NOT NULL UNIQUE CHECK (code ~ '^[A-Z0-9_]{2,30}$'),
@@ -138,9 +124,7 @@ CREATE TABLE tariff_plans (
 );
 COMMENT ON TABLE tariff_plans IS 'Проїзні: безлімітний на період або пакет поїздок з терміном дії';
 
--- ---------------------------------------------------------------------------
 -- 8. Проїзні, придбані на картку
--- ---------------------------------------------------------------------------
 CREATE TABLE card_subscriptions (
     id              integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     card_id         integer NOT NULL REFERENCES cards (id) ON DELETE RESTRICT,
@@ -159,9 +143,7 @@ CREATE TABLE card_subscriptions (
 COMMENT ON TABLE card_subscriptions IS
     'Проїзні на картці; вичерпаний пакет закривається моментом початку нового проїзного';
 
--- ---------------------------------------------------------------------------
 -- 9. Валідатори
--- ---------------------------------------------------------------------------
 CREATE TABLE validators (
     id                 integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     code               text NOT NULL UNIQUE CHECK (code ~ '^V-[0-9]{5}$'),
@@ -173,9 +155,7 @@ CREATE TABLE validators (
 );
 COMMENT ON TABLE validators IS 'Валідатори; вид транспорту поїздки визначається через валідатор';
 
--- ---------------------------------------------------------------------------
 -- 10. Поповнення балансу
--- ---------------------------------------------------------------------------
 CREATE TABLE top_ups (
     id             bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     card_id        integer NOT NULL REFERENCES cards (id) ON DELETE RESTRICT,
@@ -189,9 +169,7 @@ CREATE TABLE top_ups (
 );
 COMMENT ON TABLE top_ups IS 'Журнал поповнень; payment_ref забезпечує ідемпотентність повтору платежу';
 
--- ---------------------------------------------------------------------------
 -- 11. Поїздки (валідації)
--- ---------------------------------------------------------------------------
 CREATE TABLE trips (
     id               bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     card_id          integer NOT NULL REFERENCES cards (id) ON DELETE RESTRICT,
@@ -219,9 +197,7 @@ COMMENT ON TABLE trips IS 'Поїздки: кожна успішна валід�
 COMMENT ON COLUMN trips.payment_method IS
     'balance — списання з балансу; subscription — проїзний; transfer — безкоштовна пересадка; free — 100% пільга';
 
--- ---------------------------------------------------------------------------
 -- 12. Списання коштів
--- ---------------------------------------------------------------------------
 CREATE TABLE charges (
     id               bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     card_id          integer NOT NULL REFERENCES cards (id) ON DELETE RESTRICT,
@@ -245,9 +221,7 @@ CREATE TABLE charges (
 );
 COMMENT ON TABLE charges IS 'Журнал списань: оплата поїздки з балансу або купівля проїзного';
 
--- ---------------------------------------------------------------------------
 -- Індекси, яких немає серед індексів обмежень (PK/UNIQUE/EXCLUDE)
--- ---------------------------------------------------------------------------
 -- Виписка картки (fn_card_statement) і перевірка ON DELETE RESTRICT при видаленні картки.
 CREATE INDEX top_ups_card_time_idx ON top_ups (card_id, created_at);
 CREATE INDEX charges_card_time_idx ON charges (card_id, charged_at);
