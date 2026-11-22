@@ -1,0 +1,126 @@
+%% ER-діаграма схеми transit (відповідає sql/01_schema.sql)
+%% Кратність: ||  рівно один, o|  нуль або один, o{  нуль або багато
+erDiagram
+    privilege_categories ||--o{ passengers : "надає пільгу"
+    passengers |o--o{ cards : "володіє"
+    cards ||--o{ card_status_history : "має історію статусів"
+    cards ||--o{ top_ups : "поповнюється"
+    cards ||--o{ card_subscriptions : "має проїзні"
+    cards ||--o{ trips : "валідується"
+    cards ||--o{ charges : "з неї списують"
+    tariff_plans ||--o{ card_subscriptions : "купується як"
+    transport_types |o--o{ tariff_plans : "обмежує дію"
+    transport_types ||--o{ fares : "має тарифи"
+    transport_types ||--o{ validators : "обслуговує"
+    validators ||--o{ trips : "реєструє"
+    card_subscriptions |o--o{ trips : "оплачує"
+    trips |o--o| charges : "оплачена списанням"
+    card_subscriptions |o--o| charges : "куплений списанням"
+
+    privilege_categories {
+        smallint id PK
+        text code UK
+        text name UK
+        numeric discount_pct "0 < x <= 100"
+        boolean is_active
+    }
+    passengers {
+        integer id PK
+        text last_name
+        text first_name
+        text middle_name "NULL"
+        date birth_date
+        text phone UK "NULL, +380XXXXXXXXX"
+        text email UK "NULL"
+        smallint privilege_category_id FK "NULL"
+        date privilege_valid_until "NULL"
+        timestamptz registered_at
+    }
+    cards {
+        integer id PK
+        text card_number UK "16 цифр"
+        integer passenger_id FK "NULL = анонімна"
+        text status "active|blocked|lost"
+        numeric balance ">= 0, кеш"
+        date issued_on
+        date valid_until
+        timestamptz status_changed_at
+    }
+    card_status_history {
+        bigint id PK
+        integer card_id FK
+        text old_status "NULL"
+        text new_status
+        timestamptz changed_at
+        text changed_by
+        text reason "NULL"
+    }
+    transport_types {
+        smallint id PK
+        text code UK
+        text name UK
+    }
+    fares {
+        integer id PK
+        smallint transport_type_id FK
+        numeric price "> 0"
+        date valid_from
+        date valid_to "NULL, EXCLUDE"
+    }
+    tariff_plans {
+        smallint id PK
+        text code UK
+        text name
+        text plan_type "unlimited|trip_pack"
+        smallint transport_type_id FK "NULL = усі"
+        numeric price "> 0"
+        smallint duration_days
+        smallint trips_count "NULL"
+        boolean is_active
+    }
+    card_subscriptions {
+        integer id PK
+        integer card_id FK
+        smallint tariff_plan_id FK
+        timestamptz valid_from
+        timestamptz valid_to "EXCLUDE"
+        smallint trips_left "NULL"
+        timestamptz purchased_at
+    }
+    validators {
+        integer id PK
+        text code UK "V-NNNNN"
+        smallint transport_type_id FK
+        text location
+        boolean is_active
+        date installed_on
+    }
+    top_ups {
+        bigint id PK
+        integer card_id FK
+        numeric amount "1..5000"
+        text channel
+        text payment_ref UK
+        numeric balance_after
+        timestamptz created_at
+    }
+    trips {
+        bigint id PK
+        integer card_id FK "UK(card_id, validated_at)"
+        integer validator_id FK
+        timestamptz validated_at
+        text payment_method
+        integer subscription_id FK "NULL"
+    }
+    charges {
+        bigint id PK
+        integer card_id FK
+        text charge_type "trip|plan_purchase"
+        bigint trip_id FK,UK "NULL"
+        integer subscription_id FK,UK "NULL"
+        numeric full_price
+        numeric discount_pct
+        numeric amount
+        numeric balance_after
+        timestamptz charged_at
+    }

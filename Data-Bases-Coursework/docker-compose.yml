@@ -1,0 +1,27 @@
+# Локальне середовище курсової: PostgreSQL 18 у контейнері.
+# Пароль не зберігається в репозиторії: його беруть з файлу .env (див. .env.example).
+services:
+  db:
+    image: postgres:18
+    container_name: transit-pg
+    environment:
+      POSTGRES_DB: transit_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Задайте POSTGRES_PASSWORD у файлі .env}
+      TZ: Europe/Kyiv
+      PGTZ: Europe/Kyiv
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Починаючи з образу postgres:18 том монтують у /var/lib/postgresql
+      - pgdata:/var/lib/postgresql
+      # Скрипти проєкту доступні всередині контейнера (лише читання)
+      - ./sql:/work/sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d transit_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:
