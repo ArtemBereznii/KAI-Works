@@ -39,10 +39,24 @@ docker compose up -d --wait   # PostgreSQL 18 на 127.0.0.1:5432
 | `05_views.sql` | `v_card_overview` (каса), `v_trip_facts`, `v_daily_revenue` (аналітик) |
 | `06_seed.sql` | 14 пасажирів, 18 карток, 58 поповнень, 28 проїзних, 1323 поїздки, 577 списань; повідомлення `Згенеровано поїздок: 1323, відхилено: 0` |
 | `07_queries.sql` | 18 запитів Q01–Q18 + добова виручка; операції зміни M1–M4; у Q13 — `mismatches = 0` |
+| `08_tests.sql` | 33 тести T01–T33 з таблицею «очікувано / фактично»; підсумок `33 | 33 | 0`; усе в транзакції з `ROLLBACK`, дані не змінюються. Якщо тест не пройдено — помилка `Не пройдено тестів: N` |
 
-Скрипт завершується рядком `=== Готово: N скрипт(ів) виконано без помилок ===`. Наповнення відтворюване (фіксований `setseed`), тому числа збігаються при кожному повному прогоні.
+Скрипт завершується рядком `=== Готово: 9 скрипт(ів) виконано без помилок ===`. Наповнення відтворюване (фіксований `setseed`), тому числа збігаються при кожному повному прогоні.
 
-Окремо `06_seed.sql` чи `07_queries.sql` повторно не запускаються (унікальні ключі) — лише в повному прогоні, що починається з `00_reset.sql`.
+Окремо `06_seed.sql` чи `07_queries.sql` повторно не запускаються (унікальні ключі) — лише в повному прогоні, що починається з `00_reset.sql`. `08_tests.sql` можна запускати окремо скільки завгодно разів.
+
+## Перевірки та дослідження
+
+Виконуються окремо, після повного прогону:
+
+| Команда | Що робить | Протокол |
+|---|---|---|
+| `./run_all.sh 08_tests.sql` | функціональні, негативні, граничні тести й перевірка прав від імені ролей | [protocols/tests.md](protocols/tests.md) |
+| `./run_all.sh 09_perf.sql` | генерує 500 000 поїздок (~16 с; лише якщо їх ще немає), `EXPLAIN (ANALYZE, BUFFERS)` до/після BRIN `(validated_at)` і B-tree `(validator_id, validated_at)` | [protocols/explain_before_after.md](protocols/explain_before_after.md), сирий вивід — `explain_run.log` |
+| `./restore_test.sh` | `pg_dump -Fc` → нова база `course_restore` → `pg_restore` → `sql/restore_check.sql` на обох базах → `diff` | [protocols/restore.md](protocols/restore.md) |
+| `./run_all.sh concurrency_setup.sql` + два сеанси psql | одночасні списання з однієї картки (BR11); виконується вручну | [protocols/concurrency.md](protocols/concurrency.md) |
+
+Числа в протоколах — фактичні виміри в описаному середовищі; при повторенні на іншій машині час буде іншим.
 
 ## Модель доступу
 
@@ -60,3 +74,4 @@ docker compose up -d --wait   # PostgreSQL 18 на 127.0.0.1:5432
 - [docs/requirements.md](docs/requirements.md) — процеси, бізнес-правила, вимоги
 - [docs/data-dictionary.md](docs/data-dictionary.md) — словник даних і нормалізація
 - [docs/er.mmd](docs/er.mmd) — ER-діаграма (Mermaid)
+- [docs/nosql-redis.md](docs/nosql-redis.md) — порівняння з Redis для процесу валідації

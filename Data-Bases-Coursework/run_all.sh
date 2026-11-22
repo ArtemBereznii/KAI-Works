@@ -7,6 +7,8 @@
 # (параметри підключення — через стандартні PGHOST/PGPORT/PGUSER/PGDATABASE і ~/.pgpass).
 #
 # Окремі скрипти можна передати аргументами: ./run_all.sh 00_reset.sql 01_schema.sql
+# Дослідження продуктивності (09_perf.sql) у повний прогін не входить — лише явно:
+#   ./run_all.sh 09_perf.sql
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -17,7 +19,10 @@ if [ "$#" -gt 0 ]; then
   files=("$@")
 else
   files=()
-  for f in sql/[0-9][0-9]_*.sql; do files+=("$(basename "$f")"); done
+  for f in sql/[0-9][0-9]_*.sql; do
+    [ "$(basename "$f")" = "09_perf.sql" ] && continue
+    files+=("$(basename "$f")")
+  done
 fi
 
 for f in "${files[@]}"; do
