@@ -1,12 +1,3 @@
--- demo.sql — сценарій живої демонстрації на захисті (≈5 хв), план і що казати — docs/demo.md.
--- Запуск (після повного прогону ./run_all.sh), інтерактивно з паузами між кроками:
---   docker compose exec db psql -U postgres -d transit_db -f /work/sql/demo.sql
--- Без пауз (перевірка сценарію): додати -v nopause=1
---
--- Увесь сценарій іде в ОДНІЙ транзакції з ROLLBACK наприкінці: дані після демонстрації
--- не змінюються, тож її можна повторювати. Очікувані помилки не зупиняють сценарій:
--- ON_ERROR_ROLLBACK відкочує лише невдалий оператор.
-
 \set ON_ERROR_STOP off
 \set ON_ERROR_ROLLBACK on
 \set VERBOSITY default
