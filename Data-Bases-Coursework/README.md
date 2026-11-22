@@ -75,6 +75,7 @@ docker compose up -d --wait   # PostgreSQL 18 на 127.0.0.1:5432
 - [docs/data-dictionary.md](docs/data-dictionary.md) — словник даних і нормалізація
 - [docs/er.mmd](docs/er.mmd) — ER-діаграма (Mermaid)
 - [docs/nosql-redis.md](docs/nosql-redis.md) — порівняння з Redis для процесу валідації
+- [docs/demo.md](docs/demo.md) — сценарій демонстрації на захисті (`sql/demo.sql`, ≈5 хв, без змін у даних)
 
 ## Пояснювальна записка
 
