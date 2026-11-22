@@ -75,3 +75,15 @@ docker compose up -d --wait   # PostgreSQL 18 на 127.0.0.1:5432
 - [docs/data-dictionary.md](docs/data-dictionary.md) — словник даних і нормалізація
 - [docs/er.mmd](docs/er.mmd) — ER-діаграма (Mermaid)
 - [docs/nosql-redis.md](docs/nosql-redis.md) — порівняння з Redis для процесу валідації
+
+## Пояснювальна записка
+
+- [report/Пояснювальна_записка.docx](report/Пояснювальна_записка.docx) і [.pdf](report/Пояснювальна_записка.pdf) — готові файли (45 с., основний текст — с. 4–32).
+- Текст записки — [report/zapyska.txt](report/zapyska.txt) у простій розмітці (опис — у заголовку `build_report.ps1`); документ збирається через Microsoft Word:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File report\build_report.ps1
+```
+
+- ER-діаграми: `docs/er.png` (повна схема), `docs/er-conceptual.png` (концептуальна модель), `docs/er-part1.png` і `docs/er-part2.png` — фрагменти для додатка А (`report\crop_er.ps1`).
+- Поля титульної сторінки й завдання з `____` (ПІБ, група, керівник) заповнюються в `zapyska.txt` перед збиранням.
