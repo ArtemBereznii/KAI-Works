@@ -1,0 +1,22 @@
+<section id="checks" class="dark">
+<p class="eyebrow">ПЕРЕВІРКА</p>
+<h2>33 тести й два сеанси одночасно</h2>
+<div class="cols" style="grid-template-columns:0.8fr 1.6fr; margin-top:48px">
+<div class="rise" style="--i:0">
+<p class="num" style="font-family:'Rubik', Arial, sans-serif; font-size:120px; font-weight:700; line-height:1; color:#F0A93B">33 / 33</p>
+<p class="label" style="font-size:30px; color:#C3CEDB; margin-top:12px">тестів пройдено</p>
+<p class="small" style="margin-top:40px">23505 · 23514 · 23P01 · 23001 · 42501 · P0001</p>
+<p class="small" style="margin-top:16px">Усе в транзакції з ROLLBACK — дані не змінюються</p>
+</div>
+<table class="tbl rise" style="--i:1; margin-top:0; font-size:26px">
+<tr><th style="width:24%">Час</th><th style="width:16%">Сеанс</th><th>Що сталося</th></tr>
+<tr><td>20:09:19.469</td><td>А</td><td>списано 20.00, баланс 10.00, транзакція відкрита</td></tr>
+<tr><td>20:09:20.519</td><td>Б</td><td>те саме списання — чекає на блокування</td></tr>
+<tr><td>20:09:26.131</td><td>А</td><td>COMMIT</td></tr>
+<tr><td>+5,6 с</td><td>Б</td><td>BR02: баланс 10.00, потрібно 20.00</td></tr>
+</table>
+</div>
+<div class="spacer"></div>
+<p class="lead">Картка з балансом 30 грн — рівно одна поїздка за 20 грн. Подвійного списання немає.</p>
+<aside>33 автоматичні тести пройдено всі: позитивні, негативні, граничні, перевірки прав і відкату. Тести виконуються в транзакції з відкатом, тому дані не змінюються. Конкурентний доступ перевірено двома окремими підключеннями. Сеанс А списав 20 гривень і тримав транзакцію відкритою. Сеанс Б з тією самою карткою чекав на блокування 5,6 секунди, а після COMMIT отримав відмову BR02, бо побачив уже оновлений баланс 10 гривень. У варіанті з ROLLBACK сеанс Б, навпаки, успішно провів свою поїздку.</aside>
+</section>

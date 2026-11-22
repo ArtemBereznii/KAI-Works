@@ -1,0 +1,25 @@
+<section id="model">
+<p class="eyebrow">МОДЕЛЬ</p>
+<h2>Картка — центр, поїздка — головна подія</h2>
+<div class="erd">
+<div class="ent rise" style="--i:0"><p class="ent-name">Пасажир</p><p class="ent-table">passengers</p></div>
+<p class="arrow">→</p>
+<div class="ent hub rise" style="--i:1"><p class="ent-name">Картка</p><p class="ent-table">cards · balance</p></div>
+<p class="arrow">→</p>
+<div class="ent rise" style="--i:2"><p class="ent-name">Поїздка</p><p class="ent-table">trips</p></div>
+<p class="arrow">←</p>
+<div class="ent rise" style="--i:3"><p class="ent-name">Валідатор</p><p class="ent-table">validators</p></div>
+<div class="ent rise" style="--i:4"><p class="ent-name">Поповнення</p><p class="ent-table">top_ups</p></div>
+<p class="arrow"></p>
+<div class="ent rise" style="--i:5"><p class="ent-name">Проїзний</p><p class="ent-table">card_subscriptions</p></div>
+<p class="arrow"></p>
+<div class="ent rise" style="--i:6"><p class="ent-name">Списання</p><p class="ent-table">charges</p></div>
+<p class="arrow"></p>
+<div class="ent rise" style="--i:7"><p class="ent-name">Тариф</p><p class="ent-table">fares</p></div>
+</div>
+<div class="cols" style="grid-template-columns:1fr 1fr; margin-top:48px">
+<div class="point"><p class="point-t">3НФ</p><p class="point-d">Ціна — у fares, вид транспорту — через валідатор, прострочення — з valid_until.</p></div>
+<div class="point"><p class="point-t">Одна свідома денормалізація</p><p class="point-d">cards.balance — кеш журналів; змінюють лише процедури, звірка дає 0 розбіжностей.</p></div>
+</div>
+<aside>Модель зосереджена навколо картки. Пасажир може мати картку або картка анонімна; на картці — баланс, проїзні, поповнення й списання. Поїздка належить картці й зареєстрована валідатором, а тариф визначається через вид транспорту валідатора. Схема в третій нормальній формі з одним свідомим відступом: баланс картки — це кеш суми поповнень мінус списань. Його змінюють лише процедури в одній транзакції з журналом, а контрольний запит звіряє кеш і дає нуль розбіжностей.</aside>
+</section>

@@ -1,0 +1,12 @@
+<section id="access">
+<p class="eyebrow">ДОСТУП</p>
+<h2>Кожна роль бачить лише потрібне</h2>
+<div class="cards c3">
+<div class="card rise" style="--i:0"><p class="tag">transit_cashier</p><h3>Касир</h3><p class="card-text">Пасажири, видача картки, поповнення, продаж проїзного — гроші лише через процедури.</p></div>
+<div class="card rise" style="--i:1"><p class="tag">transit_validator</p><h3>Валідатор</h3><p class="card-text">Тільки CALL proc_register_trip. Прямий UPDATE балансу — відмова 42501.</p></div>
+<div class="card rise" style="--i:2"><p class="tag">transit_analyst</p><h3>Аналітик</h3><p class="card-text">Тільки знеособлені представлення. SELECT з passengers — відмова 42501.</p></div>
+</div>
+<div class="spacer"></div>
+<p class="lead" style="color:#4A5568">Знахідка: PostgreSQL дає PUBLIC право виконувати кожну нову функцію — валідатор зміг викликати поповнення. Виправлено явним REVOKE … FROM PUBLIC.</p>
+<aside>Три групові ролі за принципом найменших привілеїв. Касир працює з грошима лише через процедури SECURITY DEFINER, валідатор може тільки зареєструвати поїздку, аналітик читає лише знеособлені представлення. Права перевірено від імені кожної ролі командою SET ROLE. Цікава знахідка: PostgreSQL за замовчуванням дає ролі PUBLIC право виконувати будь-яку нову функцію, і під час перевірки валідатор зміг викликати процедуру поповнення. Я виправив це явним REVOKE.</aside>
+</section>

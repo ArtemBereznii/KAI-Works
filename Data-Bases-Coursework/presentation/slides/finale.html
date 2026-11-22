@@ -1,0 +1,14 @@
+<section id="finale" class="dark">
+<p class="eyebrow">ВІДНОВЛЕННЯ І ПІДСУМОК</p>
+<h2>Копія без відновлення — ще не копія</h2>
+<div class="pipe rise" style="--i:0">
+<p class="pill">pg_dump -Fc</p><p class="to">→</p><p class="pill">pg_restore</p><p class="to">→</p><p class="pill">diff</p><p class="to">→</p><p class="pill ok">ідентично, 139 рядків</p>
+</div>
+<div class="cards c3" style="margin-top:72px">
+<div class="card rise" style="--i:1"><p class="tag">СХОВИЩЕ</p><h3>PostgreSQL — основне</h3><p class="card-text">Redis — лише кеш стоп-листа й стану карток для валідаторів.</p></div>
+<div class="card rise" style="--i:2"><p class="tag">ПРАВИЛА</p><h3>У схемі й процедурах</h3><p class="card-text">CHECK, UNIQUE, EXCLUDE, FK, тригери, FOR UPDATE.</p></div>
+<div class="card rise" style="--i:3"><p class="tag">ДАЛІ</p><h3>Розвиток</h3><p class="card-text">Інтеграція з банком, перенесення балансу з утраченої картки, RLS.</p></div>
+</div>
+<p class="footer">Дякую за увагу · далі — демонстрація в psql</p>
+<aside>Резервну копію я перевірив відновленням: дамп, нова база, контрольні запити на обох базах і порівняння — результати ідентичні, працюють і обмеження, і тригери, і права. Як нереляційну альтернативу розглянув Redis: він доречний лише як кеш стоп-листа й стану карток, а гроші й журнали лишаються в PostgreSQL. Подальший розвиток — інтеграція з банком, перенесення балансу з утраченої картки та політики RLS. Дякую за увагу, далі покажу роботу в psql.</aside>
+</section>

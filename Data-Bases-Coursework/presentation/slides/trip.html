@@ -1,0 +1,15 @@
+<section id="trip" class="dark">
+<p class="eyebrow">ГОЛОВНА ОПЕРАЦІЯ · proc_register_trip</p>
+<h2>Шість кроків однієї валідації</h2>
+<div class="steps">
+<div class="step rise" style="--i:0"><p class="step-n">1</p><p class="step-t">Блокування картки</p><p class="step-d">SELECT … FOR UPDATE — інші списання чекають</p></div>
+<div class="step rise" style="--i:1"><p class="step-n">2</p><p class="step-t">Статус і строк</p><p class="step-d">blocked, lost або прострочена — відмова BR04</p></div>
+<div class="step pay rise" style="--i:2"><p class="step-n">3</p><p class="step-t">Проїзний</p><p class="step-d">діє на цьому транспорті — поїздка без списання</p></div>
+<div class="step pay rise" style="--i:3"><p class="step-n">4</p><p class="step-t">Пересадка</p><p class="step-d">платна поїздка ≤ 60 хв тому, інший валідатор</p></div>
+<div class="step pay rise" style="--i:4"><p class="step-n">5</p><p class="step-t">Пільга 100 %</p><p class="step-d">поїздка free без списання</p></div>
+<div class="step pay rise" style="--i:5"><p class="step-n">6</p><p class="step-t">Баланс</p><p class="step-d">тариф на дату поїздки зі знижкою; нестача — BR02</p></div>
+</div>
+<div class="spacer"></div>
+<p class="lead">Усе в одній транзакції: поїздка, списання й новий баланс — або все, або нічого.</p>
+<aside>Центральна процедура — реєстрація поїздки на валідаторі. Спершу вона блокує рядок картки, щоб паралельні списання чекали. Далі перевіряє статус і строк дії. Потім шукає спосіб оплати по черзі: проїзний, безкоштовна пересадка протягом 60 хвилин на інший валідатор, пільга 100 відсотків і нарешті списання з балансу за тарифом, чинним на дату поїздки, зі знижкою. Усі зміни — в одній транзакції, тому частково виконаної поїздки не буває.</aside>
+</section>

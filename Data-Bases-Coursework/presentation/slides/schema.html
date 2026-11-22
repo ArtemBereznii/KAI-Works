@@ -1,0 +1,13 @@
+<section id="schema">
+<p class="eyebrow">ГОЛОВНИЙ ПРИЙОМ</p>
+<h2>Правило в схемі, а не в if</h2>
+<div class="cols">
+<p class="code rise" style="--i:0"><span class="cm">-- BR07: проїзні однієї картки не перетинаються</span><br><span class="kw">CONSTRAINT</span> card_subscriptions_no_overlap_excl<br>&#160;&#160;<span class="kw">EXCLUDE USING</span> gist (<br>&#160;&#160;&#160;&#160;card_id <span class="kw">WITH</span> =,<br>&#160;&#160;&#160;&#160;tstzrange(valid_from, valid_to) <span class="kw">WITH</span> &amp;&amp;<br>&#160;&#160;)<br><br><span class="cm">-- BR10: одна пересадка на платну поїздку</span><br>transfer_from_trip_id bigint <span class="kw">UNIQUE</span><br>&#160;&#160;<span class="kw">REFERENCES</span> trips (id)</p>
+<div>
+<div class="point rise" style="--i:1"><p class="point-t">EXCLUDE замість тригера</p><p class="point-d">Другий проїзний на той самий місяць — помилка 23P01. Так само тарифи не перетинаються (BR06).</p></div>
+<div class="point rise" style="--i:2"><p class="point-t">UNIQUE гарантує пересадку</p><p class="point-d">Навіть дві одночасні валідації не створять двох безкоштовних пересадок від однієї поїздки.</p></div>
+<div class="point rise" style="--i:3"><p class="point-t">Журнали незмінні</p><p class="point-d">UPDATE чи DELETE у charges і top_ups відхиляє тригер — BR17.</p></div>
+</div>
+</div>
+<aside>Ключове рішення — виносити правила в обмеження схеми. Обмеження EXCLUDE з розширенням btree_gist забороняє перетин періодів: два проїзні однієї картки на той самий час — помилка 23P01, так само з тарифами. Безкоштовну пересадку гарантує унікальне посилання transfer_from_trip_id: від однієї платної поїздки може бути лише одна пересадка, навіть якщо дві валідації прийдуть одночасно. А журнали списань і поповнень захищені тригером від зміни та видалення.</aside>
+</section>
