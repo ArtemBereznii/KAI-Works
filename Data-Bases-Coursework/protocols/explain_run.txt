@@ -1,0 +1,398 @@
+=== 09_perf.sql ===
+SET
+SET
+Timing is on.
+                                                      version                                                       
+--------------------------------------------------------------------------------------------------------------------
+ PostgreSQL 18.7 (Debian 18.7-1.pgdg13+5) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+(1 row)
+
+Time: 0.472 ms
+psql:/work/sql/09_perf.sql:29: NOTICE:  Набір для дослідження вже створено, генерацію пропущено
+DO
+Time: 1.940 ms
+Time: 0.149 ms
+ANALYZE
+Time: 345.516 ms
+=== Обсяг даних
+ trips_total | trips_heap | trips_indexes 
+-------------+------------+---------------
+      501323 | 37 MB      | 48 MB
+(1 row)
+
+Time: 18.686 ms
+=== Звірка балансу після генерації (очікується 0)
+ mismatches 
+------------
+          0
+(1 row)
+
+Time: 16.526 ms
+DROP INDEX
+Time: 1.981 ms
+DROP INDEX
+Time: 2.483 ms
+ANALYZE
+Time: 80.713 ms
+=== Параметри: E1 — доба 2026-05-12; E2 — валідатор V-40003, травень 2026; E0 — картка 4800000000001000
+=== E1 ДО: поїздки за добу (запуски 1, 2, 3)
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=6970.91..6970.92 rows=1 width=16) (actual time=24.327..24.328 rows=1.00 loops=1)
+   Buffers: shared hit=1465 read=2404
+   ->  Sort  (cost=6956.39..6961.23 rows=1936 width=4) (actual time=24.156..24.218 rows=1835.00 loops=1)
+         Sort Key: card_id
+         Sort Method: quicksort  Memory: 49kB
+         Buffers: shared hit=1465 read=2404
+         ->  Bitmap Heap Scan on trips  (cost=3220.20..6850.69 rows=1936 width=4) (actual time=23.448..23.978 rows=1835.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+               Heap Blocks: exact=18
+               Buffers: shared hit=1465 read=2404
+               ->  Bitmap Index Scan on trips_card_time_uq  (cost=0.00..3219.72 rows=1936 width=0) (actual time=23.228..23.228 rows=1835.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 737
+                     Buffers: shared hit=1465 read=2386
+ Planning:
+   Buffers: shared hit=30 read=3
+ Planning Time: 0.146 ms
+ Execution Time: 24.349 ms
+(18 rows)
+
+Time: 24.881 ms
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=6970.91..6970.92 rows=1 width=16) (actual time=8.957..8.958 rows=1.00 loops=1)
+   Buffers: shared hit=3866
+   ->  Sort  (cost=6956.39..6961.23 rows=1936 width=4) (actual time=8.735..8.802 rows=1835.00 loops=1)
+         Sort Key: card_id
+         Sort Method: quicksort  Memory: 49kB
+         Buffers: shared hit=3866
+         ->  Bitmap Heap Scan on trips  (cost=3220.20..6850.69 rows=1936 width=4) (actual time=8.407..8.562 rows=1835.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+               Heap Blocks: exact=18
+               Buffers: shared hit=3866
+               ->  Bitmap Index Scan on trips_card_time_uq  (cost=0.00..3219.72 rows=1936 width=0) (actual time=8.389..8.389 rows=1835.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 737
+                     Buffers: shared hit=3848
+ Planning Time: 0.081 ms
+ Execution Time: 8.983 ms
+(16 rows)
+
+Time: 9.358 ms
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=6970.91..6970.92 rows=1 width=16) (actual time=9.263..9.265 rows=1.00 loops=1)
+   Buffers: shared hit=3866
+   ->  Sort  (cost=6956.39..6961.23 rows=1936 width=4) (actual time=9.058..9.136 rows=1835.00 loops=1)
+         Sort Key: card_id
+         Sort Method: quicksort  Memory: 49kB
+         Buffers: shared hit=3866
+         ->  Bitmap Heap Scan on trips  (cost=3220.20..6850.69 rows=1936 width=4) (actual time=8.722..8.880 rows=1835.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+               Heap Blocks: exact=18
+               Buffers: shared hit=3866
+               ->  Bitmap Index Scan on trips_card_time_uq  (cost=0.00..3219.72 rows=1936 width=0) (actual time=8.701..8.701 rows=1835.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 737
+                     Buffers: shared hit=3848
+ Planning Time: 0.073 ms
+ Execution Time: 9.287 ms
+(16 rows)
+
+Time: 9.653 ms
+=== E2 ДО: навантаження валідатора за місяць (запуски 1, 2, 3)
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=9793.10..9896.74 rows=5182 width=16) (actual time=23.767..24.232 rows=31.00 loops=1)
+   Group Key: (date_trunc('day'::text, t.validated_at))
+   Buffers: shared hit=3198 read=601
+   InitPlan 1
+     ->  Seq Scan on validators  (cost=0.00..1.15 rows=1 width=4) (actual time=0.148..0.149 rows=1.00 loops=1)
+           Filter: (code = 'V-40003'::text)
+           Rows Removed by Filter: 11
+           Buffers: shared read=1
+   ->  Sort  (cost=9791.95..9804.90 rows=5182 width=8) (actual time=23.741..23.937 rows=5305.00 loops=1)
+         Sort Key: (date_trunc('day'::text, t.validated_at))
+         Sort Method: quicksort  Memory: 193kB
+         Buffers: shared hit=3198 read=601
+         ->  Bitmap Heap Scan on trips t  (cost=3777.78..9472.24 rows=5182 width=8) (actual time=17.320..23.510 rows=5305.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+               Filter: (validator_id = (InitPlan 1).col1)
+               Rows Removed by Filter: 52094
+               Heap Blocks: exact=538
+               Buffers: shared hit=3198 read=601
+               ->  Bitmap Index Scan on trips_card_time_uq  (cost=0.00..3776.49 rows=57000 width=0) (actual time=16.884..16.884 rows=57399.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 403
+                     Buffers: shared hit=3180 read=80
+ Planning:
+   Buffers: shared hit=34 read=2
+ Planning Time: 0.235 ms
+ Execution Time: 24.264 ms
+(26 rows)
+
+Time: 24.998 ms
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=9793.10..9896.74 rows=5182 width=16) (actual time=18.211..18.682 rows=31.00 loops=1)
+   Group Key: (date_trunc('day'::text, t.validated_at))
+   Buffers: shared hit=3799
+   InitPlan 1
+     ->  Seq Scan on validators  (cost=0.00..1.15 rows=1 width=4) (actual time=0.017..0.018 rows=1.00 loops=1)
+           Filter: (code = 'V-40003'::text)
+           Rows Removed by Filter: 11
+           Buffers: shared hit=1
+   ->  Sort  (cost=9791.95..9804.90 rows=5182 width=8) (actual time=18.187..18.382 rows=5305.00 loops=1)
+         Sort Key: (date_trunc('day'::text, t.validated_at))
+         Sort Method: quicksort  Memory: 193kB
+         Buffers: shared hit=3799
+         ->  Bitmap Heap Scan on trips t  (cost=3777.78..9472.24 rows=5182 width=8) (actual time=12.809..17.963 rows=5305.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+               Filter: (validator_id = (InitPlan 1).col1)
+               Rows Removed by Filter: 52094
+               Heap Blocks: exact=538
+               Buffers: shared hit=3799
+               ->  Bitmap Index Scan on trips_card_time_uq  (cost=0.00..3776.49 rows=57000 width=0) (actual time=12.720..12.721 rows=57399.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 403
+                     Buffers: shared hit=3260
+ Planning Time: 0.108 ms
+ Execution Time: 18.708 ms
+(24 rows)
+
+Time: 19.121 ms
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=9793.10..9896.74 rows=5182 width=16) (actual time=19.094..19.904 rows=31.00 loops=1)
+   Group Key: (date_trunc('day'::text, t.validated_at))
+   Buffers: shared hit=3799
+   InitPlan 1
+     ->  Seq Scan on validators  (cost=0.00..1.15 rows=1 width=4) (actual time=0.007..0.008 rows=1.00 loops=1)
+           Filter: (code = 'V-40003'::text)
+           Rows Removed by Filter: 11
+           Buffers: shared hit=1
+   ->  Sort  (cost=9791.95..9804.90 rows=5182 width=8) (actual time=19.060..19.371 rows=5305.00 loops=1)
+         Sort Key: (date_trunc('day'::text, t.validated_at))
+         Sort Method: quicksort  Memory: 193kB
+         Buffers: shared hit=3799
+         ->  Bitmap Heap Scan on trips t  (cost=3777.78..9472.24 rows=5182 width=8) (actual time=12.712..18.773 rows=5305.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+               Filter: (validator_id = (InitPlan 1).col1)
+               Rows Removed by Filter: 52094
+               Heap Blocks: exact=538
+               Buffers: shared hit=3799
+               ->  Bitmap Index Scan on trips_card_time_uq  (cost=0.00..3776.49 rows=57000 width=0) (actual time=12.635..12.635 rows=57399.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 403
+                     Buffers: shared hit=3260
+ Planning Time: 0.110 ms
+ Execution Time: 19.935 ms
+(24 rows)
+
+Time: 20.386 ms
+=== E0: останні 10 поїздок картки (наявний UNIQUE-індекс)
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=8.72..48.25 rows=10 width=24) (actual time=0.046..0.055 rows=10.00 loops=1)
+   Buffers: shared hit=14 read=2
+   InitPlan 1
+     ->  Index Scan using cards_card_number_key on cards  (cost=0.28..8.29 rows=1 width=4) (actual time=0.030..0.031 rows=1.00 loops=1)
+           Index Cond: (card_number = '4800000000001000'::text)
+           Index Searches: 1
+           Buffers: shared hit=1 read=2
+   ->  Index Scan Backward using trips_card_time_uq on trips t  (cost=0.42..984.74 rows=249 width=24) (actual time=0.045..0.053 rows=10.00 loops=1)
+         Index Cond: (card_id = (InitPlan 1).col1)
+         Index Searches: 1
+         Buffers: shared hit=14 read=2
+ Planning:
+   Buffers: shared hit=17
+ Planning Time: 0.146 ms
+ Execution Time: 0.068 ms
+(15 rows)
+
+Time: 0.555 ms
+=== Зміна 1: BRIN-індекс за часом валідації
+CREATE INDEX
+Time: 52.047 ms
+ANALYZE
+Time: 77.291 ms
+=== E1 ПІСЛЯ (запуски 1, 2, 3)
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=5022.87..5022.88 rows=1 width=16) (actual time=3.539..3.541 rows=1.00 loops=1)
+   Buffers: shared hit=133 read=128
+   ->  Sort  (cost=5008.37..5013.20 rows=1934 width=4) (actual time=3.367..3.429 rows=1835.00 loops=1)
+         Sort Key: card_id
+         Sort Method: quicksort  Memory: 49kB
+         Buffers: shared hit=133 read=128
+         ->  Bitmap Heap Scan on trips  (cost=12.52..4902.80 rows=1934 width=4) (actual time=2.927..3.158 rows=1835.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+               Rows Removed by Index Recheck: 25693
+               Heap Blocks: lossy=256
+               Buffers: shared hit=133 read=128
+               ->  Bitmap Index Scan on trips_validated_at_brin  (cost=0.00..12.03 rows=13752 width=0) (actual time=0.024..0.024 rows=2560.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 1
+                     Buffers: shared hit=5
+ Planning:
+   Buffers: shared hit=18
+ Planning Time: 0.150 ms
+ Execution Time: 3.568 ms
+(19 rows)
+
+Time: 4.043 ms
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=5022.87..5022.88 rows=1 width=16) (actual time=2.627..2.628 rows=1.00 loops=1)
+   Buffers: shared hit=258
+   ->  Sort  (cost=5008.37..5013.20 rows=1934 width=4) (actual time=2.459..2.522 rows=1835.00 loops=1)
+         Sort Key: card_id
+         Sort Method: quicksort  Memory: 49kB
+         Buffers: shared hit=258
+         ->  Bitmap Heap Scan on trips  (cost=12.52..4902.80 rows=1934 width=4) (actual time=2.041..2.281 rows=1835.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+               Rows Removed by Index Recheck: 25693
+               Heap Blocks: lossy=256
+               Buffers: shared hit=258
+               ->  Bitmap Index Scan on trips_validated_at_brin  (cost=0.00..12.03 rows=13752 width=0) (actual time=0.018..0.018 rows=2560.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 1
+                     Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.092 ms
+ Execution Time: 2.671 ms
+(19 rows)
+
+Time: 3.060 ms
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=5022.87..5022.88 rows=1 width=16) (actual time=3.623..3.625 rows=1.00 loops=1)
+   Buffers: shared hit=258
+   ->  Sort  (cost=5008.37..5013.20 rows=1934 width=4) (actual time=3.365..3.460 rows=1835.00 loops=1)
+         Sort Key: card_id
+         Sort Method: quicksort  Memory: 49kB
+         Buffers: shared hit=258
+         ->  Bitmap Heap Scan on trips  (cost=12.52..4902.80 rows=1934 width=4) (actual time=2.591..3.007 rows=1835.00 loops=1)
+               Recheck Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+               Rows Removed by Index Recheck: 25693
+               Heap Blocks: lossy=256
+               Buffers: shared hit=258
+               ->  Bitmap Index Scan on trips_validated_at_brin  (cost=0.00..12.03 rows=13752 width=0) (actual time=0.017..0.018 rows=2560.00 loops=1)
+                     Index Cond: ((validated_at >= '2026-05-12 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-05-13 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 1
+                     Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.124 ms
+ Execution Time: 3.655 ms
+(19 rows)
+
+Time: 4.095 ms
+=== Зміна 2: B-tree (validator_id, validated_at)
+CREATE INDEX
+Time: 280.145 ms
+ANALYZE
+Time: 76.172 ms
+=== E2 ПІСЛЯ (запуски 1, 2, 3)
+                                                                                                      QUERY PLAN                                                                                                       
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=5494.87..5600.93 rows=5303 width=16) (actual time=2.548..3.024 rows=31.00 loops=1)
+   Group Key: (date_trunc('day'::text, t.validated_at))
+   Buffers: shared hit=538 read=23
+   InitPlan 1
+     ->  Seq Scan on validators  (cost=0.00..1.15 rows=1 width=4) (actual time=0.009..0.009 rows=1.00 loops=1)
+           Filter: (code = 'V-40003'::text)
+           Rows Removed by Filter: 11
+           Buffers: shared hit=1
+   ->  Sort  (cost=5493.72..5506.98 rows=5303 width=8) (actual time=2.491..2.675 rows=5305.00 loops=1)
+         Sort Key: (date_trunc('day'::text, t.validated_at))
+         Sort Method: quicksort  Memory: 193kB
+         Buffers: shared hit=538 read=23
+         ->  Bitmap Heap Scan on trips t  (cost=152.04..5165.66 rows=5303 width=8) (actual time=0.407..2.271 rows=5305.00 loops=1)
+               Recheck Cond: ((validator_id = (InitPlan 1).col1) AND (validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+               Heap Blocks: exact=537
+               Buffers: shared hit=538 read=23
+               ->  Bitmap Index Scan on trips_validator_time_idx  (cost=0.00..150.71 rows=5303 width=0) (actual time=0.354..0.354 rows=5305.00 loops=1)
+                     Index Cond: ((validator_id = (InitPlan 1).col1) AND (validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 1
+                     Buffers: shared hit=1 read=23
+ Planning:
+   Buffers: shared hit=26 read=1
+ Planning Time: 0.210 ms
+ Execution Time: 3.049 ms
+(24 rows)
+
+Time: 3.567 ms
+                                                                                                      QUERY PLAN                                                                                                       
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=5494.87..5600.93 rows=5303 width=16) (actual time=2.289..2.796 rows=31.00 loops=1)
+   Group Key: (date_trunc('day'::text, t.validated_at))
+   Buffers: shared hit=561
+   InitPlan 1
+     ->  Seq Scan on validators  (cost=0.00..1.15 rows=1 width=4) (actual time=0.008..0.008 rows=1.00 loops=1)
+           Filter: (code = 'V-40003'::text)
+           Rows Removed by Filter: 11
+           Buffers: shared hit=1
+   ->  Sort  (cost=5493.72..5506.98 rows=5303 width=8) (actual time=2.266..2.452 rows=5305.00 loops=1)
+         Sort Key: (date_trunc('day'::text, t.validated_at))
+         Sort Method: quicksort  Memory: 193kB
+         Buffers: shared hit=561
+         ->  Bitmap Heap Scan on trips t  (cost=152.04..5165.66 rows=5303 width=8) (actual time=0.244..2.043 rows=5305.00 loops=1)
+               Recheck Cond: ((validator_id = (InitPlan 1).col1) AND (validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+               Heap Blocks: exact=537
+               Buffers: shared hit=561
+               ->  Bitmap Index Scan on trips_validator_time_idx  (cost=0.00..150.71 rows=5303 width=0) (actual time=0.193..0.194 rows=5305.00 loops=1)
+                     Index Cond: ((validator_id = (InitPlan 1).col1) AND (validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 1
+                     Buffers: shared hit=24
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.166 ms
+ Execution Time: 2.822 ms
+(24 rows)
+
+Time: 3.307 ms
+                                                                                                      QUERY PLAN                                                                                                       
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=5494.87..5600.93 rows=5303 width=16) (actual time=2.307..2.790 rows=31.00 loops=1)
+   Group Key: (date_trunc('day'::text, t.validated_at))
+   Buffers: shared hit=561
+   InitPlan 1
+     ->  Seq Scan on validators  (cost=0.00..1.15 rows=1 width=4) (actual time=0.008..0.009 rows=1.00 loops=1)
+           Filter: (code = 'V-40003'::text)
+           Rows Removed by Filter: 11
+           Buffers: shared hit=1
+   ->  Sort  (cost=5493.72..5506.98 rows=5303 width=8) (actual time=2.285..2.480 rows=5305.00 loops=1)
+         Sort Key: (date_trunc('day'::text, t.validated_at))
+         Sort Method: quicksort  Memory: 193kB
+         Buffers: shared hit=561
+         ->  Bitmap Heap Scan on trips t  (cost=152.04..5165.66 rows=5303 width=8) (actual time=0.246..2.063 rows=5305.00 loops=1)
+               Recheck Cond: ((validator_id = (InitPlan 1).col1) AND (validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+               Heap Blocks: exact=537
+               Buffers: shared hit=561
+               ->  Bitmap Index Scan on trips_validator_time_idx  (cost=0.00..150.71 rows=5303 width=0) (actual time=0.197..0.198 rows=5305.00 loops=1)
+                     Index Cond: ((validator_id = (InitPlan 1).col1) AND (validated_at >= '2026-05-01 00:00:00+03'::timestamp with time zone) AND (validated_at < '2026-06-01 00:00:00+03'::timestamp with time zone))
+                     Index Searches: 1
+                     Buffers: shared hit=24
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.151 ms
+ Execution Time: 2.815 ms
+(24 rows)
+
+Time: 3.315 ms
+=== Вартість індексів
+           index_name            |  size   
+---------------------------------+---------
+ trips_card_time_uq              | 19 MB
+ trips_validator_time_idx        | 15 MB
+ trips_pkey                      | 11 MB
+ trips_transfer_from_trip_id_key | 3184 kB
+ trips_validated_at_brin         | 24 kB
+(5 rows)
+
+Time: 1.692 ms
+Timing is off.
+=== Готово: 1 скрипт(ів) виконано без помилок ===

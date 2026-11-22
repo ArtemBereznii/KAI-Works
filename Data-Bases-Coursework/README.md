@@ -52,9 +52,9 @@ docker compose up -d --wait   # PostgreSQL 18 на 127.0.0.1:5432
 | Команда | Що робить | Протокол |
 |---|---|---|
 | `./run_all.sh 08_tests.sql` | функціональні, негативні, граничні тести й перевірка прав від імені ролей | [protocols/tests.md](protocols/tests.md) |
-| `./run_all.sh 09_perf.sql` | генерує 500 000 поїздок (~16 с; лише якщо їх ще немає), `EXPLAIN (ANALYZE, BUFFERS)` до/після BRIN `(validated_at)` і B-tree `(validator_id, validated_at)` | [protocols/explain_before_after.md](protocols/explain_before_after.md), сирий вивід — `explain_run.log` |
+| `./run_all.sh 09_perf.sql` | генерує 500 000 поїздок (~16 с; лише якщо їх ще немає), `EXPLAIN (ANALYZE, BUFFERS)` до/після BRIN `(validated_at)` і B-tree `(validator_id, validated_at)` | [protocols/explain_before_after.md](protocols/explain_before_after.md), сирий вивід — `explain_run.txt` |
 | `./restore_test.sh` | `pg_dump -Fc` → нова база `course_restore` → `pg_restore` → `sql/restore_check.sql` на обох базах → `diff` | [protocols/restore.md](protocols/restore.md) |
-| `./run_all.sh concurrency_setup.sql` + два сеанси psql | одночасні списання з однієї картки (BR11); виконується вручну | [protocols/concurrency.md](protocols/concurrency.md) |
+| `./run_all.sh concurrency_setup.sql`, потім `./concurrency_test.sh 1` і `./concurrency_test.sh 2` | одночасні списання з однієї картки двома окремими підключеннями (BR11): А — COMMIT / ROLLBACK, Б чекає на блокування | [protocols/concurrency.md](protocols/concurrency.md) (там же — ручний варіант для захисту) |
 
 Числа в протоколах — фактичні виміри в описаному середовищі; при повторенні на іншій машині час буде іншим.
 

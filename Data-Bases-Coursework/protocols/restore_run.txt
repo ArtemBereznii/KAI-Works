@@ -1,0 +1,178 @@
+=== Версії
+pg_dump (PostgreSQL) 18.7 (Debian 18.7-1.pgdg13+5)
+pg_restore (PostgreSQL) 18.7 (Debian 18.7-1.pgdg13+5)
+=== 1. Дамп transit_db (custom format)
+
+real	0m2.126s
+user	0m0.000s
+sys	0m0.136s
+-rw-r--r-- 1 root root 9055024 Nov 22 19:47 /tmp/transit_db.dump
+--- Зміст дампу (кількість записів TOC за типом)
+      1 ACL -
+     31 ACL transit
+      2 COMMENT -
+     21 COMMENT transit
+     28 CONSTRAINT transit
+      1 EXTENSION -
+     16 FK CONSTRAINT
+      7 FUNCTION transit
+      4 INDEX transit
+      5 PROCEDURE transit
+      1 SCHEMA -
+     12 SEQUENCE SET
+     12 SEQUENCE transit
+     12 TABLE DATA
+     12 TABLE transit
+      6 TRIGGER transit
+      3 VIEW transit
+=== 2. Нова порожня база course_restore
+NOTICE:  database "course_restore" does not exist, skipping
+=== 3. Відновлення
+
+real	0m3.985s
+user	0m0.046s
+sys	0m0.482s
+=== 4. Контрольні вибірки на обох базах
+=== 5. Порівняння
+Результати контрольних вибірок ідентичні (139 рядків)
+
+=== Повний вивід restore_check.sql на course_restore (на transit_db — ідентичний)
+SET
+SET
+--- Об'єкти схеми transit
+    kind     | count 
+-------------+-------
+ tables      |    12
+ views       |     3
+ indexes     |    32
+ constraints |   156
+ functions   |     7
+ procedures  |     5
+ triggers    |     6
+
+--- Індекси
+      tablename       |             indexname              
+----------------------+------------------------------------
+ card_status_history  | card_status_history_pkey
+ card_subscriptions   | card_subscriptions_no_overlap_excl
+ card_subscriptions   | card_subscriptions_pkey
+ cards                | cards_card_number_key
+ cards                | cards_pkey
+ charges              | charges_card_time_idx
+ charges              | charges_pkey
+ charges              | charges_subscription_id_key
+ charges              | charges_trip_id_key
+ fares                | fares_no_overlap_excl
+ fares                | fares_pkey
+ passengers           | passengers_email_key
+ passengers           | passengers_phone_key
+ passengers           | passengers_pkey
+ privilege_categories | privilege_categories_code_key
+ privilege_categories | privilege_categories_name_key
+ privilege_categories | privilege_categories_pkey
+ tariff_plans         | tariff_plans_code_key
+ tariff_plans         | tariff_plans_pkey
+ top_ups              | top_ups_card_time_idx
+ top_ups              | top_ups_payment_ref_key
+ top_ups              | top_ups_pkey
+ transport_types      | transport_types_code_key
+ transport_types      | transport_types_name_key
+ transport_types      | transport_types_pkey
+ trips                | trips_card_time_uq
+ trips                | trips_pkey
+ trips                | trips_transfer_from_trip_id_key
+ trips                | trips_validated_at_brin
+ trips                | trips_validator_time_idx
+ validators           | validators_code_key
+ validators           | validators_pkey
+
+--- Кількість рядків
+      table_name      | count  
+----------------------+--------
+ privilege_categories |      6
+ passengers           |     15
+ cards                |   2018
+ card_status_history  |   2023
+ transport_types      |      4
+ fares                |      8
+ tariff_plans         |      5
+ card_subscriptions   |  18028
+ validators           |     12
+ top_ups              |  18058
+ trips                | 501323
+ charges              |  18577
+
+--- Контрольні суми
+ sum_balance | sum_top_ups | sum_charges |            trips_md5             
+-------------+-------------+-------------+----------------------------------
+     2685.00 | 21620900.00 | 21618215.00 | 7bcf12f4df1515a2ff50d7ff6d23dea4
+
+--- Звірка балансу з журналами (Q13)
+ mismatches 
+------------
+          0
+
+--- Основні запити: виручка за видами транспорту в листопаді (Q01) і представлення
+   name    | trips | revenue 
+-----------+-------+---------
+ Автобус   |   190 | 1475.00
+ Метро     |   155 | 1200.00
+ Трамвай   |    69 |  255.00
+ Тролейбус |   112 |  850.00
+
+ overview_rows | overview_balance 
+---------------+------------------
+          2018 |          2685.00
+
+             op_at             | op_type | amount | balance_after |                  details                  
+-------------------------------+---------+--------+---------------+-------------------------------------------
+ 2026-10-15 07:08:48.439006+03 | trip    |  -7.50 |         57.50 | поїздка, валідатор V-10003, пільга 50.00%
+ 2026-10-15 19:02:00.305571+03 | top_up  | 500.00 |        557.50 | канал mobile_app, платіж SEED-00025
+ 2026-10-15 19:22:00.305571+03 | trip    | -10.00 |        547.50 | поїздка, валідатор V-40002, пільга 50.00%
+ 2026-10-16 08:26:53.438205+03 | trip    | -15.00 |        532.50 | поїздка, валідатор V-10003
+ 2026-10-16 18:58:08.757628+03 | trip    | -15.00 |        517.50 | поїздка, валідатор V-10003
+
+--- Обмеження й тригери працюють
+BEGIN
+psql:/work/sql/restore_check.sql:76: NOTICE:  дублікат номера картки: 23505
+psql:/work/sql/restore_check.sql:76: NOTICE:  видалення з журналу: BR17
+DO
+ROLLBACK
+--- Права ролей
+     grantee     |      table_name      |  privileges   
+-----------------+----------------------+---------------
+ transit_analyst | v_daily_revenue      | SELECT
+ transit_analyst | v_trip_facts         | SELECT
+ transit_cashier | card_status_history  | SELECT
+ transit_cashier | card_subscriptions   | SELECT
+ transit_cashier | cards                | SELECT
+ transit_cashier | fares                | SELECT
+ transit_cashier | passengers           | INSERT,SELECT
+ transit_cashier | privilege_categories | SELECT
+ transit_cashier | tariff_plans         | SELECT
+ transit_cashier | transport_types      | SELECT
+ transit_cashier | v_card_overview      | SELECT
+ transit_cashier | validators           | SELECT
+
+       routine_name       |     grantees      
+--------------------------+-------------------
+ fn_actor                 | 
+ fn_card_discount         | 
+ fn_card_statement        | transit_cashier
+ fn_current_fare          | transit_cashier
+ fn_trg_card_status_audit | 
+ fn_trg_card_status_guard | 
+ fn_trg_journal_immutable | 
+ proc_buy_plan            | transit_cashier
+ proc_issue_card          | transit_cashier
+ proc_register_trip       | transit_validator
+ proc_set_card_status     | transit_cashier
+ proc_top_up              | transit_cashier
+
+BEGIN
+SET
+ analyst_sees_trip_facts 
+-------------------------
+                  501323
+
+ROLLBACK

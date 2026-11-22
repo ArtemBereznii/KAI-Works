@@ -1,21 +1,26 @@
--- concurrency_setup.sql — підготовка до сценарію конкурентного доступу (BR11, protocols/concurrency.md).
--- Створює анонімну картку 4777000000000001 з балансом 30.00: вистачає рівно на одну
--- поїздку автобусом (20.00), але не на дві. Запуск: ./run_all.sh concurrency_setup.sql
+-- concurrency_setup.sql — підготовка до сценаріїв конкурентного доступу (BR11, protocols/concurrency.md).
+-- Створює дві анонімні картки з балансом 30.00: вистачає рівно на одну поїздку
+-- автобусом (20.00), але не на дві.
+--   4777000000000001 — сценарій 1 (сеанс А виконує COMMIT)
+--   4777000000000002 — сценарій 2 (сеанс А виконує ROLLBACK)
+-- Запуск: ./run_all.sh concurrency_setup.sql
 -- Повторний експеримент — після повного прогону ./run_all.sh (журнали незмінні, BR17).
 
 SET search_path = transit, public;
 
 DO $$
-DECLARE v_id integer; v_tid bigint; v_bal numeric;
+DECLARE v_num text; v_id integer; v_tid bigint; v_bal numeric;
 BEGIN
-    IF EXISTS (SELECT 1 FROM cards WHERE card_number = '4777000000000001') THEN
-        RAISE NOTICE 'Картка 4777000000000001 вже існує, баланс %',
-            (SELECT balance FROM cards WHERE card_number = '4777000000000001');
-        RETURN;
-    END IF;
-    CALL proc_issue_card('4777000000000001', NULL, v_id);
-    CALL proc_top_up('4777000000000001', 30, 'cash_desk', 'CONC-SETUP-1', v_tid, v_bal);
-    RAISE NOTICE 'Картку 4777000000000001 створено, баланс %', v_bal;
+    FOREACH v_num IN ARRAY ARRAY['4777000000000001', '4777000000000002'] LOOP
+        IF EXISTS (SELECT 1 FROM cards WHERE card_number = v_num) THEN
+            RAISE NOTICE 'Картка % вже існує, баланс %', v_num,
+                (SELECT balance FROM cards WHERE card_number = v_num);
+            CONTINUE;
+        END IF;
+        CALL proc_issue_card(v_num, NULL, v_id);
+        CALL proc_top_up(v_num, 30, 'cash_desk', 'CONC-SETUP-' || right(v_num, 1), v_tid, v_bal);
+        RAISE NOTICE 'Картку % створено, баланс %', v_num, v_bal;
+    END LOOP;
 END $$;
 
-SELECT card_number, status, balance FROM cards WHERE card_number = '4777000000000001';
+SELECT card_number, status, balance FROM cards WHERE card_number LIKE '4777%' ORDER BY 1;

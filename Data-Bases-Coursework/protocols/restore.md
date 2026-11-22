@@ -1,6 +1,6 @@
 # Протокол резервного копіювання та відновлення
 
-**Дата:** 22.11.2026 · **Скрипт:** [`restore_test.sh`](../restore_test.sh) + [`sql/restore_check.sql`](../sql/restore_check.sql) · **Повний вивід:** [restore_run.log](restore_run.log)
+**Дата:** 22.11.2026 · **Скрипт:** [`restore_test.sh`](../restore_test.sh) + [`sql/restore_check.sql`](../sql/restore_check.sql) · **Повний вивід:** [restore_run.txt](restore_run.txt)
 
 ## Що копіювали і чим
 

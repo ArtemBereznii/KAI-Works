@@ -1,0 +1,251 @@
+# Вивід ./concurrency_test.sh 1 та ./concurrency_test.sh 2, 22.11.2026 (без змін)
+================ сценарій 1: session_a ================
+Timing is on.
+SELECT pg_backend_pid() AS session_a_pid;
+ session_a_pid 
+---------------
+          2587
+(1 row)
+
+Time: 0.417 ms
+SET search_path = transit, public;
+SET
+Time: 0.112 ms
+SET ROLE transit_validator;
+SET
+Time: 0.137 ms
+BEGIN;
+BEGIN
+Time: 0.088 ms
+SELECT clock_timestamp() AS a_call_start;
+         a_call_start          
+-------------------------------
+ 2026-11-22 20:09:19.469211+02
+(1 row)
+
+Time: 0.280 ms
+CALL proc_register_trip('4777000000000001', 'V-10001', NULL, NULL, NULL, NULL);
+ p_trip_id | p_payment_method | p_amount | p_balance 
+-----------+------------------+----------+-----------
+      1332 | balance          |    20.00 |     10.00
+(1 row)
+
+Time: 6.497 ms
+SELECT clock_timestamp() AS a_call_end;
+          a_call_end           
+-------------------------------
+ 2026-11-22 20:09:19.475989+02
+(1 row)
+
+Time: 0.141 ms
+SELECT clock_timestamp() AS a_finish_at;
+          a_finish_at          
+-------------------------------
+ 2026-11-22 20:09:26.131234+02
+(1 row)
+
+Time: 0.255 ms
+COMMIT;
+COMMIT
+Time: 6.212 ms
+RESET ROLE;
+RESET
+Time: 0.133 ms
+SELECT c.card_number, c.balance, (SELECT count(*) FROM trips t WHERE t.card_id = c.id) AS trips,
+       (SELECT count(*) FROM charges h WHERE h.card_id = c.id) AS charges
+FROM cards c WHERE c.card_number = '4777000000000001';
+   card_number    | balance | trips | charges 
+------------------+---------+-------+---------
+ 4777000000000001 |   10.00 |     1 |       1
+(1 row)
+
+Time: 0.872 ms
+================ сценарій 1: session_b ================
+Timing is on.
+SELECT pg_backend_pid() AS session_b_pid;
+ session_b_pid 
+---------------
+          2594
+(1 row)
+
+Time: 0.451 ms
+SET search_path = transit, public;
+SET
+Time: 0.126 ms
+SET ROLE transit_validator;
+SET
+Time: 0.133 ms
+BEGIN;
+BEGIN
+Time: 0.081 ms
+SET LOCAL lock_timeout = '60s';
+SET
+Time: 0.109 ms
+SELECT clock_timestamp() AS b_call_start;
+         b_call_start         
+------------------------------
+ 2026-11-22 20:09:20.51883+02
+(1 row)
+
+Time: 0.243 ms
+CALL proc_register_trip('4777000000000001', 'V-10001', NULL, NULL, NULL, NULL);
+ERROR:  BR02: недостатньо коштів на картці 4777000000000001 (баланс 10.00, потрібно 20.00)
+CONTEXT:  PL/pgSQL function proc_register_trip(text,text,timestamp with time zone) line 90 at RAISE
+Time: 5622.875 ms (00:05.623)
+SELECT clock_timestamp() AS b_call_end;
+Time: 0.149 ms
+COMMIT;
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK
+Time: 0.109 ms
+================ сценарій 1: observer ================
+SELECT clock_timestamp() AS observed_at;
+          observed_at          
+-------------------------------
+ 2026-11-22 20:09:22.548894+02
+(1 row)
+
+SELECT pid, usename, wait_event_type, wait_event, state, left(regexp_replace(query, '\s+', ' ', 'g'), 70) AS query
+FROM pg_stat_activity WHERE datname = 'transit_db' AND backend_type = 'client backend' AND pid <> pg_backend_pid() ORDER BY pid;
+ pid  | usename  | wait_event_type |  wait_event   |        state        |                                 query                                  
+------+----------+-----------------+---------------+---------------------+------------------------------------------------------------------------
+ 2587 | postgres | Client          | ClientRead    | idle in transaction | SELECT clock_timestamp() AS a_call_end;
+ 2594 | postgres | Lock            | transactionid | active              | CALL proc_register_trip('4777000000000001', 'V-10001', NULL, NULL, NUL
+(2 rows)
+
+SELECT pid, pg_blocking_pids(pid) AS blocked_by FROM pg_stat_activity
+WHERE datname = 'transit_db' AND cardinality(pg_blocking_pids(pid)) > 0;
+ pid  | blocked_by 
+------+------------
+ 2594 | {2587}
+(1 row)
+
+
+================ сценарій 2: session_a ================
+Timing is on.
+SELECT pg_backend_pid() AS session_a_pid;
+ session_a_pid 
+---------------
+          2633
+(1 row)
+
+Time: 0.347 ms
+SET search_path = transit, public;
+SET
+Time: 0.096 ms
+SET ROLE transit_validator;
+SET
+Time: 0.106 ms
+BEGIN;
+BEGIN
+Time: 0.118 ms
+SELECT clock_timestamp() AS a_call_start;
+         a_call_start          
+-------------------------------
+ 2026-11-22 20:09:36.840585+02
+(1 row)
+
+Time: 0.159 ms
+CALL proc_register_trip('4777000000000002', 'V-10001', NULL, NULL, NULL, NULL);
+ p_trip_id | p_payment_method | p_amount | p_balance 
+-----------+------------------+----------+-----------
+      1333 | balance          |    20.00 |     10.00
+(1 row)
+
+Time: 6.411 ms
+SELECT clock_timestamp() AS a_call_end;
+          a_call_end           
+-------------------------------
+ 2026-11-22 20:09:36.847309+02
+(1 row)
+
+Time: 0.140 ms
+SELECT clock_timestamp() AS a_finish_at;
+          a_finish_at          
+-------------------------------
+ 2026-11-22 20:09:43.541512+02
+(1 row)
+
+Time: 0.217 ms
+ROLLBACK;
+ROLLBACK
+Time: 0.241 ms
+RESET ROLE;
+RESET
+Time: 0.164 ms
+SELECT c.card_number, c.balance, (SELECT count(*) FROM trips t WHERE t.card_id = c.id) AS trips,
+       (SELECT count(*) FROM charges h WHERE h.card_id = c.id) AS charges
+FROM cards c WHERE c.card_number = '4777000000000002';
+   card_number    | balance | trips | charges 
+------------------+---------+-------+---------
+ 4777000000000002 |   10.00 |     1 |       1
+(1 row)
+
+Time: 0.579 ms
+================ сценарій 2: session_b ================
+Timing is on.
+SELECT pg_backend_pid() AS session_b_pid;
+ session_b_pid 
+---------------
+          2640
+(1 row)
+
+Time: 0.331 ms
+SET search_path = transit, public;
+SET
+Time: 0.145 ms
+SET ROLE transit_validator;
+SET
+Time: 0.158 ms
+BEGIN;
+BEGIN
+Time: 0.085 ms
+SET LOCAL lock_timeout = '60s';
+SET
+Time: 0.146 ms
+SELECT clock_timestamp() AS b_call_start;
+         b_call_start          
+-------------------------------
+ 2026-11-22 20:09:37.925814+02
+(1 row)
+
+Time: 0.213 ms
+CALL proc_register_trip('4777000000000002', 'V-10001', NULL, NULL, NULL, NULL);
+ p_trip_id | p_payment_method | p_amount | p_balance 
+-----------+------------------+----------+-----------
+      1334 | balance          |    20.00 |     10.00
+(1 row)
+
+Time: 5624.106 ms (00:05.624)
+SELECT clock_timestamp() AS b_call_end;
+          b_call_end           
+-------------------------------
+ 2026-11-22 20:09:43.549092+02
+(1 row)
+
+Time: 0.148 ms
+COMMIT;
+COMMIT
+Time: 5.807 ms
+================ сценарій 2: observer ================
+SELECT clock_timestamp() AS observed_at;
+          observed_at          
+-------------------------------
+ 2026-11-22 20:09:39.969862+02
+(1 row)
+
+SELECT pid, usename, wait_event_type, wait_event, state, left(regexp_replace(query, '\s+', ' ', 'g'), 70) AS query
+FROM pg_stat_activity WHERE datname = 'transit_db' AND backend_type = 'client backend' AND pid <> pg_backend_pid() ORDER BY pid;
+ pid  | usename  | wait_event_type |  wait_event   |        state        |                                 query                                  
+------+----------+-----------------+---------------+---------------------+------------------------------------------------------------------------
+ 2633 | postgres | Client          | ClientRead    | idle in transaction | SELECT clock_timestamp() AS a_call_end;
+ 2640 | postgres | Lock            | transactionid | active              | CALL proc_register_trip('4777000000000002', 'V-10001', NULL, NULL, NUL
+(2 rows)
+
+SELECT pid, pg_blocking_pids(pid) AS blocked_by FROM pg_stat_activity
+WHERE datname = 'transit_db' AND cardinality(pg_blocking_pids(pid)) > 0;
+ pid  | blocked_by 
+------+------------
+ 2640 | {2633}
+(1 row)
+
